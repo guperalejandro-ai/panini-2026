@@ -596,7 +596,7 @@ function renderStickers(){
     const d=document.createElement('div');
     let cls='stk';if(foil)cls+=' foil';if(coca)cls+=' coca';if(state==='have')cls+=' have';if(state==='rep')cls+=' rep';
     const num=selId==='FWC'?sid.replace('FWC-',''):(idx+1);
-    d.className=cls;d.title=name;
+    d.className=cls;d.title=name;d.dataset.sid=sid;
     const xBtn = (v>0) ? '<div class="xbtn" id="x-'+sid+'">✕</div>' : '';
     d.innerHTML=(foil?'<div class="fb">★</div>':'')+(coca?'<div class="ccb">🥤</div>':'')+'<div class="sc">'+num+'</div><div class="spn">'+name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'')+xBtn;
     d.onclick=e=>{
@@ -614,18 +614,71 @@ function renderStickers(){
 
 function tapStk(sid){
   const c=col(curU),cur=c[sid]||0;
-  // 0 → 1 (tengo), 1 → 2 (repetida x2), 2 → 3, etc up to 9
   if(cur===0) c[sid]=1;
   else if(cur<9) c[sid]=cur+1;
-  save();renderAll();if(room)debouncedSync();
+  save();
+  // Update just this sticker visually without re-filtering the grid
+  updateStkVisual(sid);
+  renderStats();renderCL();
+  if(room)debouncedSync();
 }
 function removeStk(sid){
   const c=col(curU);
   delete c[sid];
-  save();renderAll();if(room)debouncedSync();
+  save();
+  updateStkVisual(sid);
+  renderStats();renderCL();
+  if(room)debouncedSync();
 }
-// Keep for compatibility
 function addRep(sid){tapStk(sid);}
+
+function updateStkVisual(sid){
+  // Find the sticker element and update it in place without removing it from view
+  const c=col(curU);
+  const v=c[sid]||0;
+  // Find item and index
+  let item=null,idx=0;
+  if(sid.startsWith('FWC-')){
+    item=SPECIAL;
+    idx=SPECIAL.stickers.findIndex(s=>'FWC-'+s.c===sid);
+  } else {
+    const tid=sid.split('-')[0];
+    item=TEAMS.find(t=>t.id===tid);
+    idx=parseInt(sid.split('-')[1]);
+  }
+  if(!item)return;
+  const stks_list=stks(item);
+  const stkData=stks_list[idx];
+  if(!stkData)return;
+
+  // Find the DOM element — look for element with matching onclick data
+  const grid=document.getElementById('sg');
+  if(!grid)return;
+  const allStks=grid.querySelectorAll('.stk');
+  let target=null;
+  allStks.forEach(el=>{
+    // Match by position in grid — find by data attribute we'll set
+    if(el.dataset.sid===sid) target=el;
+  });
+  if(!target){
+    // Fallback: full re-render
+    renderStickers();return;
+  }
+
+  // Update classes
+  target.className='stk'+(stkData.foil?' foil':'')+(stkData.coca?' coca':'')+(v>=1?' have':'')+(v>1?' rep':'');
+  // Update innerHTML
+  const num=sid.startsWith('FWC-')?sid.replace('FWC-',''):(idx+1);
+  const xBtn=(v>0)?'<div class="xbtn">✕</div>':'';
+  target.innerHTML=(stkData.foil?'<div class="fb">★</div>':'')+(stkData.coca?'<div class="ccb">🥤</div>':'')
+    +'<div class="sc">'+num+'</div><div class="spn">'+stkData.name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'')+xBtn;
+  // Re-bind events
+  target.onclick=e=>{
+    if(e.target.classList.contains('xbtn')||e.target.closest('.xbtn')){removeStk(sid);return;}
+    tapStk(sid);
+  };
+  target.oncontextmenu=e=>e.preventDefault();
+}
 function setF(f,btn){curF=f;document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStickers();}
 function sTab(tab,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
