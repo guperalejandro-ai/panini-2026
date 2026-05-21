@@ -590,13 +590,12 @@ function renderStickers(){
   const c=col(curU),list=stks(item);grid.innerHTML='';
   list.forEach(({sid,name,foil,coca},idx)=>{
     const v=c[sid]||0,state=v===0?'missing':v===1?'have':'rep';
-    if(curF==='missing'&&state!=='missing')return;
-    if(curF==='have'&&state!=='have')return;
-    if(curF==='rep'&&state!=='rep')return;
+    // Dim non-matching stickers instead of hiding them
+    const matches=(curF==='all')||(curF==='missing'&&state==='missing')||(curF==='have'&&state==='have')||(curF==='rep'&&state==='rep');
     const d=document.createElement('div');
     let cls='stk';if(foil)cls+=' foil';if(coca)cls+=' coca';if(state==='have')cls+=' have';if(state==='rep')cls+=' rep';
     const num=selId==='FWC'?sid.replace('FWC-',''):(idx+1);
-    d.className=cls;d.title=name;d.dataset.sid=sid;
+    d.className=cls;d.title=name;d.dataset.sid=sid;if(!matches)d.style.opacity='0.25';else d.style.opacity='1';
     const xBtn = (v>0) ? '<div class="xbtn" id="x-'+sid+'">✕</div>' : '';
     d.innerHTML=(foil?'<div class="fb">★</div>':'')+(coca?'<div class="ccb">🥤</div>':'')+'<div class="sc">'+num+'</div><div class="spn">'+name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'')+xBtn;
     d.onclick=e=>{
