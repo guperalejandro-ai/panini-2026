@@ -1032,10 +1032,36 @@ function importarDesdeFiguritas(txt){
     const vcol={};
     const setS=(code,v)=>{vcol['FWC-'+code]=v;};
     [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([k,arr])=>{
-      arr.forEach((code,i)=>{const n=i+1;if((repeated[k]||[]).includes(n))setS(code,2);else if(!(missing[k]||[]).includes(n))setS(code,1);});
+      const hasMis=missing[k]!==undefined,hasRep=repeated[k]!==undefined;
+      if(!hasMis&&!hasRep) return;
+      arr.forEach((code,i)=>{
+        const n=i+1;
+        if((repeated[k]||[]).includes(n)) setS(code,2);
+        else if(hasMis&&(missing[k]||[]).includes(n)) {}
+        else if(hasMis) setS(code,1);
+      });
     });
-    ccCodes.forEach((code,i)=>{const n=i+1;if((repeated['CC']||[]).includes(n))vcol['FWC-'+code]=2;else if(!(missing['CC']||[]).includes(n))vcol['FWC-'+code]=1;});
-    teamIds.forEach(tid=>{for(let i=0;i<20;i++){const n=i+1,sid=tid+'-'+i;if((repeated[tid]||[]).includes(n))vcol[sid]=2;else if(!(missing[tid]||[]).includes(n))vcol[sid]=1;}});
+    if(missing['CC']!==undefined||repeated['CC']!==undefined){
+      ccCodes.forEach((code,i)=>{
+        const n=i+1;
+        if((repeated['CC']||[]).includes(n)) vcol['FWC-'+code]=2;
+        else if((missing['CC']||[]).includes(n)) {}
+        else if(missing['CC']!==undefined) vcol['FWC-'+code]=1;
+      });
+    }
+    teamIds.forEach(tid=>{
+      const hasMissing=missing[tid]!==undefined;
+      const hasRepeated=repeated[tid]!==undefined;
+      // If team not mentioned at all: zero stickers
+      if(!hasMissing&&!hasRepeated) return;
+      for(let i=0;i<20;i++){
+        const n=i+1,sid=tid+'-'+i;
+        if((repeated[tid]||[]).includes(n)) vcol[sid]=2;       // repeated
+        else if(hasMissing&&(missing[tid]||[]).includes(n)) {} // missing = don't set (0)
+        else if(hasMissing) vcol[sid]=1;                       // not in missing list = have
+        else if(hasRepeated&&!(repeated[tid]||[]).includes(n)){} // only repeated section: rest are 0
+      }
+    });
 
     // Save as visitor
     const id='vis_fig_'+name.replace(/ +/g,'_');
