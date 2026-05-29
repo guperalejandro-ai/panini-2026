@@ -466,6 +466,7 @@ const db = firebase.firestore();
 let users=JSON.parse(localStorage.getItem('p26u')||'null')||[{id:'yo',name:'Yo',color:'#4A90D9'}];
 let cols=JSON.parse(localStorage.getItem('p26c')||'{}');
 let curU=users[0].id,selId=null,curF='all',curG='A',room=localStorage.getItem('p26r')||null;
+let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
 const COLORS=['#4A90D9','#2EC49A','#F5A623','#E05757','#9B59B6','#E67E22','#1ABC9C','#E91E63'];
 let fbUnsubscribe=null; // Firestore listener
 
@@ -986,7 +987,8 @@ function importarDesdeTexto(){
   const txt=document.getElementById('importTxt').value.trim();
   if(!txt){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero el texto recibido</span>';return;}
   // Detect format
-  if(txt.includes('Figuritas App') || txt.includes('Me faltan') || txt.includes('Repetidas')){
+  if(txt.includes('Figuritas App') || txt.includes('Me faltan') || txt.includes('Repetidas')
+    || txt.includes('I need') || txt.includes('Swaps') || txt.includes('Figuritas App - List')){
     importarDesdeFiguritas(txt);
   } else {
     procesarImport(txt);
@@ -1010,12 +1012,28 @@ function importarDesdeFiguritas(txt){
       'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
       'BEL','EGY','IRN','NZL','ESP','CPV','KSA','URU','FRA','SEN','IRQ','NOR',
       'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
+
+    // Detect list type — partial lists need different logic
+    const hasMissingSection=txt.includes('Me faltan')||txt.includes('Missing')||txt.includes('I need')||txt.includes("I'm missing");
+    const hasRepeatedSection=txt.includes('Repetidas')||txt.includes('Repeated')||txt.includes('Duplicated')||txt.includes('Swaps')||txt.includes('Swap');
+    const hasHaveSection=txt.includes('Tengo')||txt.includes('I have')||txt.includes('My stickers');
+    // If ONLY repeated section: everything not listed = 0 (not have, not missing)
+    // If ONLY missing section: everything not listed = have (1)
+    // If ONLY have section: only listed = have, rest = 0
+    // If missing+repeated: standard mode
+
     let mode='';
-    const missing={},repeated={};
+    const missing={},repeated={},have={};
     lines.forEach(line=>{
-      if(line==='Me faltan'){mode='missing';return;}
-      if(line==='Repetidas'){mode='repeated';return;}
-      if(!mode||line.startsWith('http')||line.startsWith('Descarga')||line.startsWith('Figuritas'))return;
+      // Section headers — Spanish and English (all Figuritas variants)
+      if(/^(Me faltan|Missing stickers|I need|I'm missing|Missing)/i.test(line)){mode='missing';return;}
+      if(/^(Repetidas|Repeated|Duplicated|Duplicates|Swaps|Swap)/i.test(line)){mode='repeated';return;}
+      if(/^(Tengo|I have|My stickers|Have)/i.test(line)){mode='have';return;}
+      if(!mode
+        ||line.startsWith('http')
+        ||/^(Descarga|Download)/i.test(line)
+        ||/^Figuritas/i.test(line)
+        ||/^(Use |Usa )/i.test(line))return;
       const colonIdx=line.indexOf(':');if(colonIdx<0)return;
       const prefix=line.substring(0,colonIdx).trim();
       const nums=line.substring(colonIdx+1).trim().split(',').map(n=>parseInt(n.trim())).filter(n=>!isNaN(n));
@@ -1027,24 +1045,27 @@ function importarDesdeFiguritas(txt){
       else if(prefix.startsWith('CC'))tk='CC';
       else tk=prefix.split(' ')[0].toUpperCase();
       if(mode==='missing'){if(!missing[tk])missing[tk]=[];missing[tk].push(...nums);}
-      else{if(!repeated[tk])repeated[tk]=[];repeated[tk].push(...nums);}
+      else if(mode==='repeated'){if(!repeated[tk])repeated[tk]=[];repeated[tk].push(...nums);}
+      else if(mode==='have'){if(!have[tk])have[tk]=[];have[tk].push(...nums);}
     });
     const vcol={};
     const setS=(code,v)=>{vcol['FWC-'+code]=v;};
     [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([k,arr])=>{
-      const hasMis=missing[k]!==undefined,hasRep=repeated[k]!==undefined;
-      if(!hasMis&&!hasRep) return;
+      const hasMis=missing[k]!==undefined,hasRep=repeated[k]!==undefined,hasHv=have[k]!==undefined;
+      if(!hasMis&&!hasRep&&!hasHv) return;
       arr.forEach((code,i)=>{
         const n=i+1;
         if((repeated[k]||[]).includes(n)) setS(code,2);
+        else if(hasHv&&(have[k]||[]).includes(n)) setS(code,1);
         else if(hasMis&&(missing[k]||[]).includes(n)) {}
         else if(hasMis) setS(code,1);
       });
     });
-    if(missing['CC']!==undefined||repeated['CC']!==undefined){
+    if(missing['CC']!==undefined||repeated['CC']!==undefined||have['CC']!==undefined){
       ccCodes.forEach((code,i)=>{
         const n=i+1;
         if((repeated['CC']||[]).includes(n)) vcol['FWC-'+code]=2;
+        else if(have['CC']&&(have['CC']||[]).includes(n)) vcol['FWC-'+code]=1;
         else if((missing['CC']||[]).includes(n)) {}
         else if(missing['CC']!==undefined) vcol['FWC-'+code]=1;
       });
@@ -1052,14 +1073,14 @@ function importarDesdeFiguritas(txt){
     teamIds.forEach(tid=>{
       const hasMissing=missing[tid]!==undefined;
       const hasRepeated=repeated[tid]!==undefined;
-      // If team not mentioned at all: zero stickers
-      if(!hasMissing&&!hasRepeated) return;
+      const hasHave=have[tid]!==undefined;
+      if(!hasMissing&&!hasRepeated&&!hasHave) return;
       for(let i=0;i<20;i++){
         const n=i+1,sid=tid+'-'+i;
-        if((repeated[tid]||[]).includes(n)) vcol[sid]=2;       // repeated
-        else if(hasMissing&&(missing[tid]||[]).includes(n)) {} // missing = don't set (0)
-        else if(hasMissing) vcol[sid]=1;                       // not in missing list = have
-        else if(hasRepeated&&!(repeated[tid]||[]).includes(n)){} // only repeated section: rest are 0
+        if((repeated[tid]||[]).includes(n)){ vcol[sid]=2; }
+        else if(hasHave&&(have[tid]||[]).includes(n)){ vcol[sid]=1; }
+        else if(hasMissing&&(missing[tid]||[]).includes(n)){ /* missing=0 */ }
+        else if(hasMissing){ vcol[sid]=1; }
       }
     });
 
@@ -1137,19 +1158,21 @@ function parseFiguritasIntoUser(txt, targetUserId){
     const setSpecial=(code,v)=>{newCol['FWC-'+code]=v;};
 
     [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([key,arr])=>{
-      const hasMis=missing[key]!==undefined,hasRep=repeated[key]!==undefined;
-      if(!hasMis&&!hasRep) return;
+      const hasMis=missing[key]!==undefined,hasRep=repeated[key]!==undefined,hasHv=have[key]!==undefined;
+      if(!hasMis&&!hasRep&&!hasHv) return;
       arr.forEach((code,i)=>{
         const num=i+1;
         if((repeated[key]||[]).includes(num)) setSpecial(code,2);
+        else if(hasHv&&(have[key]||[]).includes(num)) setSpecial(code,1);
         else if(hasMis&&(missing[key]||[]).includes(num)) {}
         else if(hasMis) setSpecial(code,1);
       });
     });
-    if(missing['CC']!==undefined||repeated['CC']!==undefined){
+    if(missing['CC']!==undefined||repeated['CC']!==undefined||have['CC']!==undefined){
       ccCodes.forEach((code,i)=>{
         const num=i+1;
         if((repeated['CC']||[]).includes(num)) newCol['FWC-'+code]=2;
+        else if(have['CC']&&(have['CC']||[]).includes(num)) newCol['FWC-'+code]=1;
         else if(missing['CC']!==undefined&&(missing['CC']||[]).includes(num)) {}
         else if(missing['CC']!==undefined) newCol['FWC-'+code]=1;
       });
@@ -1157,12 +1180,15 @@ function parseFiguritasIntoUser(txt, targetUserId){
     teamIds.forEach(tid=>{
       const hasMis=missing[tid]!==undefined;
       const hasRep=repeated[tid]!==undefined;
-      if(!hasMis&&!hasRep) return; // not mentioned = zero stickers
+      const hasHv=have[tid]!==undefined;
+      if(!hasMis&&!hasRep&&!hasHv) return; // not mentioned = zero stickers
       for(let i=0;i<20;i++){
         const num=i+1,sid=tid+'-'+i;
-        if((repeated[tid]||[]).includes(num)) newCol[sid]=2;
-        else if(hasMis&&(missing[tid]||[]).includes(num)) {} // missing
-        else if(hasMis) newCol[sid]=1; // not in missing = have
+        if((repeated[tid]||[]).includes(num)){ newCol[sid]=2; }
+        else if(hasHv&&(have[tid]||[]).includes(num)){ newCol[sid]=1; }
+        else if(hasMis&&(missing[tid]||[]).includes(num)){ /* missing=0 */ }
+        else if(hasMis){ newCol[sid]=1; } // not in missing = have
+        // else: only repeated mentioned, rest are 0
       }
     });
 
