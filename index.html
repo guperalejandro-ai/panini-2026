@@ -122,6 +122,7 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
   <span>Ver:</span>
   <div id="ubtns" style="display:flex;gap:5px;flex-wrap:wrap"></div>
   <button class="uadd" onclick="openAddUser()">+ Agregar</button>
+  <button class="uadd" onclick="openEditName()" style="border-style:solid">✏️ Mi nombre</button>
   <div class="ub2" id="rdisp"></div>
 </div>
 <main>
@@ -283,6 +284,19 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
     <h3>➕ Agregar persona</h3>
     <input class="mi" type="text" id="nN" placeholder="Nombre (ej. Hermano, Sobrino Nico)" maxlength="20">
     <div class="mbtns"><button class="btns" onclick="cMo('moU')">Cancelar</button><button class="btnp" onclick="addUser()">Agregar</button></div>
+  </div>
+</div>
+
+<!-- FIRST TIME / EDIT NAME MODAL -->
+<div class="mo open" id="moName">
+  <div class="md">
+    <h3 id="moNameTitle">👋 ¿Cómo te llamas?</h3>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:12px" id="moNameDesc">Así te van a ver los demás en los intercambios.</p>
+    <input class="mi" type="text" id="myNameInput" placeholder="Tu nombre (ej. Ale, Carnal, Sobrino...)" maxlength="20">
+    <div class="mbtns">
+      <button class="btns" id="moNameCancel" onclick="cMo('moName')" style="display:none">Cancelar</button>
+      <button class="btnp" onclick="saveMyName()">Guardar</button>
+    </div>
   </div>
 </div>
 <script>
@@ -1059,10 +1073,45 @@ function allPeople(){
 }
 
 // ═══ INIT ═══════════════════════════════════════════════
+
+function openEditName(){
+  document.getElementById('moNameTitle').textContent='✏️ Cambiar mi nombre';
+  document.getElementById('moNameDesc').textContent='Este es el nombre con el que te ven los demás.';
+  document.getElementById('myNameInput').value=users[0]?.name||'';
+  document.getElementById('moNameCancel').style.display='inline-flex';
+  document.getElementById('moName').classList.add('open');
+  setTimeout(()=>document.getElementById('myNameInput').select(),100);
+}
+
+function saveMyName(){
+  const n=document.getElementById('myNameInput').value.trim();
+  if(!n)return;
+  users[0].name=n;
+  save();
+  cMo('moName');
+  renderAll();
+}
+
+// Check if first time (name is still default "Yo")
+function checkFirstTime(){
+  const isDefault = !users[0]?.name || users[0].name==='Yo';
+  if(isDefault){
+    document.getElementById('moNameCancel').style.display='none';
+    document.getElementById('moNameTitle').textContent='👋 ¿Cómo te llamas?';
+    document.getElementById('moNameDesc').textContent='Así te van a ver los demás en los intercambios.';
+    document.getElementById('myNameInput').value='';
+    document.getElementById('moName').classList.add('open');
+  } else {
+    document.getElementById('moName').classList.remove('open');
+  }
+}
+
 renderAll();renderSyncUI();
+checkFirstTime();
 if(room){ loadFromFirebase(room); }
 else { setSS('','Sin sala'); }
 document.getElementById('nN').addEventListener('keydown',e=>{if(e.key==='Enter')addUser();});
+document.getElementById('myNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveMyName();});
 document.getElementById('moU').addEventListener('click',e=>{if(e.target===document.getElementById('moU'))cMo('moU');});
 </script>
 </body>
