@@ -1137,22 +1137,32 @@ function parseFiguritasIntoUser(txt, targetUserId){
     const setSpecial=(code,v)=>{newCol['FWC-'+code]=v;};
 
     [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([key,arr])=>{
+      const hasMis=missing[key]!==undefined,hasRep=repeated[key]!==undefined;
+      if(!hasMis&&!hasRep) return;
       arr.forEach((code,i)=>{
         const num=i+1;
         if((repeated[key]||[]).includes(num)) setSpecial(code,2);
-        else if(!(missing[key]||[]).includes(num)) setSpecial(code,1);
+        else if(hasMis&&(missing[key]||[]).includes(num)) {}
+        else if(hasMis) setSpecial(code,1);
       });
     });
-    ccCodes.forEach((code,i)=>{
-      const num=i+1;
-      if((repeated['CC']||[]).includes(num)) newCol['FWC-'+code]=2;
-      else if(!(missing['CC']||[]).includes(num)) newCol['FWC-'+code]=1;
-    });
+    if(missing['CC']!==undefined||repeated['CC']!==undefined){
+      ccCodes.forEach((code,i)=>{
+        const num=i+1;
+        if((repeated['CC']||[]).includes(num)) newCol['FWC-'+code]=2;
+        else if(missing['CC']!==undefined&&(missing['CC']||[]).includes(num)) {}
+        else if(missing['CC']!==undefined) newCol['FWC-'+code]=1;
+      });
+    }
     teamIds.forEach(tid=>{
+      const hasMis=missing[tid]!==undefined;
+      const hasRep=repeated[tid]!==undefined;
+      if(!hasMis&&!hasRep) return; // not mentioned = zero stickers
       for(let i=0;i<20;i++){
         const num=i+1,sid=tid+'-'+i;
         if((repeated[tid]||[]).includes(num)) newCol[sid]=2;
-        else if(!(missing[tid]||[]).includes(num)) newCol[sid]=1;
+        else if(hasMis&&(missing[tid]||[]).includes(num)) {} // missing
+        else if(hasMis) newCol[sid]=1; // not in missing = have
       }
     });
 
