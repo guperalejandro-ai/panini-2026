@@ -1131,7 +1131,7 @@ function parseFiguritasIntoUser(txt, targetUserId){
       'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
 
     let mode='';
-    const missing={}, repeated={};
+    const missing={}, repeated={}, have={};
 
     lines.forEach(line=>{
       if(line==='Me faltan'){mode='missing';return;}
