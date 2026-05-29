@@ -238,13 +238,17 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
         <div style="border-top:1px solid var(--bf);padding-top:11px">
           <div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:7px">📥 Importar colección de alguien</div>
           <p style="font-size:11px;color:var(--gray);margin-bottom:7px">Pega aquí el texto que te mandaron o elige el archivo .json:</p>
-          <textarea id="importTxt" placeholder="Pega aquí el JSON que te mandaron por WhatsApp..." style="width:100%;height:70px;font-size:10px;font-family:monospace;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;color:var(--text);margin-bottom:7px;outline:none"></textarea>
+          <textarea id="importTxt" placeholder="Pega aquí el JSON de nuestra app o la lista de Figuritas App..." style="width:100%;height:70px;font-size:10px;font-family:monospace;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;color:var(--text);margin-bottom:7px;outline:none"></textarea>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
-            <button class="btnp" onclick="importarDesdeTexto()">✅ Importar texto</button>
+            <button class="btnp" onclick="importarDesdeTexto()">✅ Importar (otro usuario)</button>
+            <button class="btnp" style="background:var(--grn)" onclick="importarComoYo()">🔄 Cargar como MI colección</button>
             <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
               <span class="btns" style="cursor:pointer">📂 O elegir archivo .json</span>
               <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarColeccion(event)">
             </label>
+          </div>
+          <div style="font-size:10px;color:var(--gray);margin-bottom:4px">
+            💡 <strong>¿Vienes de Figuritas?</strong> Pega tu lista arriba y usa "Cargar como MI colección" para traer todo tu avance.
           </div>
           <div id="importResult" style="font-size:11px;color:var(--grn)"></div>
         </div>
@@ -981,12 +985,166 @@ function exportarColeccion(modo){
 function importarDesdeTexto(){
   const txt=document.getElementById('importTxt').value.trim();
   if(!txt){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero el texto recibido</span>';return;}
-  procesarImport(txt);
+  // Detect format
+  if(txt.includes('Figuritas App') || txt.includes('Me faltan') || txt.includes('Repetidas')){
+    importarDesdeFiguritas(txt);
+  } else {
+    procesarImport(txt);
+  }
   document.getElementById('importTxt').value='';
 }
 
-// Visitors: imported collections shown in trades view
-let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
+function importarDesdeFiguritas(txt){
+  // Ask for name
+  const name=prompt('¿Cómo se llama esta persona? (para identificarla en intercambios)','');
+  if(!name){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Cancelado</span>';return;}
+
+  try{
+    // Parse into a temp collection object
+    const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
+    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4','FWC5'];
+    const fwcWorld=['FWC6','FWC7','FWC8'];
+    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19'];
+    const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
+    const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
+      'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
+      'BEL','EGY','IRN','NZL','ESP','CPV','KSA','URU','FRA','SEN','IRQ','NOR',
+      'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
+    let mode='';
+    const missing={},repeated={};
+    lines.forEach(line=>{
+      if(line==='Me faltan'){mode='missing';return;}
+      if(line==='Repetidas'){mode='repeated';return;}
+      if(!mode||line.startsWith('http')||line.startsWith('Descarga')||line.startsWith('Figuritas'))return;
+      const colonIdx=line.indexOf(':');if(colonIdx<0)return;
+      const prefix=line.substring(0,colonIdx).trim();
+      const nums=line.substring(colonIdx+1).trim().split(',').map(n=>parseInt(n.trim())).filter(n=>!isNaN(n));
+      if(!nums.length)return;
+      let tk='';
+      if(prefix.includes('🏆'))tk='FWC_TROPHY';
+      else if(prefix.includes('🌎'))tk='FWC_WORLD';
+      else if(prefix.includes('📜'))tk='FWC_HISTORY';
+      else if(prefix.startsWith('CC'))tk='CC';
+      else tk=prefix.split(' ')[0].toUpperCase();
+      if(mode==='missing'){if(!missing[tk])missing[tk]=[];missing[tk].push(...nums);}
+      else{if(!repeated[tk])repeated[tk]=[];repeated[tk].push(...nums);}
+    });
+    const vcol={};
+    const setS=(code,v)=>{vcol['FWC-'+code]=v;};
+    [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([k,arr])=>{
+      arr.forEach((code,i)=>{const n=i+1;if((repeated[k]||[]).includes(n))setS(code,2);else if(!(missing[k]||[]).includes(n))setS(code,1);});
+    });
+    ccCodes.forEach((code,i)=>{const n=i+1;if((repeated['CC']||[]).includes(n))vcol['FWC-'+code]=2;else if(!(missing['CC']||[]).includes(n))vcol['FWC-'+code]=1;});
+    teamIds.forEach(tid=>{for(let i=0;i<20;i++){const n=i+1,sid=tid+'-'+i;if((repeated[tid]||[]).includes(n))vcol[sid]=2;else if(!(missing[tid]||[]).includes(n))vcol[sid]=1;}});
+
+    // Save as visitor
+    const id='vis_fig_'+name.replace(/ +/g,'_');
+    const vis={id,name:name+' (Fig)',color:'#9B59B6',fecha:new Date().toLocaleDateString('es-MX'),modo:'todo',col:vcol};
+    const existIdx=visitantes.findIndex(v=>v.id===id);
+    if(existIdx>=0)visitantes[existIdx]=vis;else visitantes.push(vis);
+    localStorage.setItem('p26vis',JSON.stringify(visitantes));
+    if(room)saveToFirebase();
+    document.getElementById('importResult').innerHTML='✅ Lista de <strong>'+name+'</strong> importada desde Figuritas. Ve a Intercambios.';
+    if(document.querySelector('.tab.active')?.textContent.includes('Intercambio'))renderTrades();
+    if(document.querySelector('.tab.active')?.textContent.includes('Familia'))renderFamily();
+  }catch(err){
+    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
+    console.error(err);
+  }
+}
+
+function importarComoYo(){
+  const txt=document.getElementById('importTxt').value.trim();
+  if(!txt){
+    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero tu lista de Figuritas arriba</span>';
+    return;
+  }
+  if(!txt.includes('Figuritas App')&&!txt.includes('Me faltan')){
+    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Este botón es solo para listas de Figuritas App</span>';
+    return;
+  }
+  if(!confirm('¿Cargar esta lista como TU colección? Esto reemplazará tu avance actual en la app.\n\nTu nombre actual: '+users[0].name)){
+    return;
+  }
+  // Parse same as Figuritas but load into curU instead of visitor
+  parseFiguritasIntoUser(txt, curU);
+  document.getElementById('importTxt').value='';
+}
+
+function parseFiguritasIntoUser(txt, targetUserId){
+  try{
+    const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
+    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4','FWC5'];
+    const fwcWorld=['FWC6','FWC7','FWC8'];
+    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19'];
+    const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
+    const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
+      'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
+      'BEL','EGY','IRN','NZL','ESP','CPV','KSA','URU','FRA','SEN','IRQ','NOR',
+      'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
+
+    let mode='';
+    const missing={}, repeated={};
+
+    lines.forEach(line=>{
+      if(line==='Me faltan'){mode='missing';return;}
+      if(line==='Repetidas'){mode='repeated';return;}
+      if(!mode||line.startsWith('http')||line.startsWith('Descarga')||line.startsWith('Figuritas'))return;
+      const colonIdx=line.indexOf(':');
+      if(colonIdx<0)return;
+      const prefix=line.substring(0,colonIdx).trim();
+      const numsStr=line.substring(colonIdx+1).trim();
+      const nums=numsStr.split(',').map(n=>parseInt(n.trim())).filter(n=>!isNaN(n));
+      if(!nums.length)return;
+      let teamKey='';
+      if(prefix.includes('🏆')) teamKey='FWC_TROPHY';
+      else if(prefix.includes('🌎')) teamKey='FWC_WORLD';
+      else if(prefix.includes('📜')) teamKey='FWC_HISTORY';
+      else if(prefix.startsWith('CC')) teamKey='CC';
+      else teamKey=prefix.split(' ')[0].toUpperCase();
+      if(mode==='missing'){if(!missing[teamKey])missing[teamKey]=[];missing[teamKey].push(...nums);}
+      else{if(!repeated[teamKey])repeated[teamKey]=[];repeated[teamKey].push(...nums);}
+    });
+
+    // Build new collection
+    const newCol={};
+    const setSpecial=(code,v)=>{newCol['FWC-'+code]=v;};
+
+    [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([key,arr])=>{
+      arr.forEach((code,i)=>{
+        const num=i+1;
+        if((repeated[key]||[]).includes(num)) setSpecial(code,2);
+        else if(!(missing[key]||[]).includes(num)) setSpecial(code,1);
+      });
+    });
+    ccCodes.forEach((code,i)=>{
+      const num=i+1;
+      if((repeated['CC']||[]).includes(num)) newCol['FWC-'+code]=2;
+      else if(!(missing['CC']||[]).includes(num)) newCol['FWC-'+code]=1;
+    });
+    teamIds.forEach(tid=>{
+      for(let i=0;i<20;i++){
+        const num=i+1,sid=tid+'-'+i;
+        if((repeated[tid]||[]).includes(num)) newCol[sid]=2;
+        else if(!(missing[tid]||[]).includes(num)) newCol[sid]=1;
+      }
+    });
+
+    // Load into target user
+    cols[targetUserId]=newCol;
+    save();
+    renderAll();
+    if(room) saveToFirebase();
+
+    const count=Object.keys(newCol).length;
+    document.getElementById('importResult').innerHTML=
+      '✅ ¡Listo! Se cargaron <strong>'+count+' estampas</strong> de Figuritas como tu colección. Ya puedes seguir desde aquí.';
+  }catch(err){
+    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
+    console.error(err);
+  }
+}
+
 
 function procesarImport(jsonStr){
   try{
