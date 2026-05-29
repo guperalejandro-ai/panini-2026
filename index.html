@@ -987,8 +987,9 @@ function importarDesdeTexto(){
   const txt=document.getElementById('importTxt').value.trim();
   if(!txt){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero el texto recibido</span>';return;}
   // Detect format
-  if(txt.includes('Figuritas App') || txt.includes('Me faltan') || txt.includes('Repetidas')
-    || txt.includes('I need') || txt.includes('Swaps') || txt.includes('Figuritas App - List')){
+  const looksLikeFiguritas = txt.includes('Figuritas') || txt.includes('Me faltan') 
+    || txt.includes('I need') || txt.includes('Swaps') || txt.includes('Repetidas');
+  if(looksLikeFiguritas){
     importarDesdeFiguritas(txt);
   } else {
     procesarImport(txt);
@@ -1106,7 +1107,10 @@ function importarComoYo(){
     document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero tu lista de Figuritas arriba</span>';
     return;
   }
-  if(!txt.includes('Figuritas App')&&!txt.includes('Me faltan')){
+  // Accept any Figuritas format (Spanish or English)
+  const isFiguritas = txt.includes('Figuritas App') || txt.includes('Me faltan') 
+    || txt.includes('I need') || txt.includes('Swaps') || txt.includes('Repetidas');
+  if(!isFiguritas){
     document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Este botón es solo para listas de Figuritas App</span>';
     return;
   }
@@ -1134,9 +1138,14 @@ function parseFiguritasIntoUser(txt, targetUserId){
     const missing={}, repeated={}, have={};
 
     lines.forEach(line=>{
-      if(line==='Me faltan'){mode='missing';return;}
-      if(line==='Repetidas'){mode='repeated';return;}
-      if(!mode||line.startsWith('http')||line.startsWith('Descarga')||line.startsWith('Figuritas'))return;
+      if(/^(Me faltan|Missing stickers|I need|I'm missing|Missing)/i.test(line)){mode='missing';return;}
+      if(/^(Repetidas|Repeated|Duplicated|Duplicates|Swaps|Swap)/i.test(line)){mode='repeated';return;}
+      if(/^(Tengo|I have|My stickers|Have)/i.test(line)){mode='have';return;}
+      if(!mode
+        ||line.startsWith('http')
+        ||/^(Descarga|Download)/i.test(line)
+        ||/^Figuritas/i.test(line)
+        ||/^(Use |Usa )/i.test(line))return;
       const colonIdx=line.indexOf(':');
       if(colonIdx<0)return;
       const prefix=line.substring(0,colonIdx).trim();
