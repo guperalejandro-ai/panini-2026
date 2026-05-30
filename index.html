@@ -887,18 +887,6 @@ function allPeople(){
   return [...users,...visitantes.map(v=>({id:v.id,name:v.name,color:v.color||'#9B59B6',isVisitor:true,modo:v.modo}))];
 }
 
-// ═══ FIGURITAS IMPORT ════════════════════════════════════
-let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
-
-function getColForId(uid){
-  if(cols[uid]) return cols[uid];
-  const vis=visitantes.find(v=>v.id===uid);
-  return vis?vis.col:{};
-}
-function allPeople(){
-  return [...users,...visitantes.map(v=>({id:v.id,name:v.name,color:v.color||'#9B59B6',isVisitor:true,modo:v.modo}))];
-}
-
 function importarComoYo(){
   const txt=document.getElementById('importTxt').value.trim();
   if(!txt){alert('Pega primero tu lista de Figuritas');return;}
