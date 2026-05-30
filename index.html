@@ -75,7 +75,6 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 .spn{font-size:7px;font-weight:400;text-align:center;line-height:1.2;margin-top:2px;color:var(--gray);overflow:hidden;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .stk.have .spn{color:var(--bdk)}.stk.rep .spn{color:#C07800}
 .rcnt{position:absolute;top:-4px;right:-4px;background:var(--org);color:#fff;font-size:7px;font-weight:800;width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #fff}
-.xbtn{position:absolute;top:-4px;left:-4px;background:var(--red);color:#fff;font-size:8px;font-weight:900;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #fff;cursor:pointer;line-height:1;z-index:10}
 .fb{position:absolute;top:-3px;left:-3px;background:var(--gold);color:#fff;font-size:6px;font-weight:800;padding:1px 3px;border-radius:3px}
 .ccb{position:absolute;top:-3px;left:-3px;background:var(--coca);color:#fff;font-size:6px;font-weight:800;padding:1px 3px;border-radius:3px}
 .fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:9px;margin-bottom:12px}
@@ -120,7 +119,6 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
   <span>Ver:</span>
   <div id="ubtns" style="display:flex;gap:5px;flex-wrap:wrap"></div>
   <button class="uadd" onclick="openAddUser()">+ Agregar</button>
-  <button class="uadd" onclick="openEditName()" style="border-style:solid">✏️ Mi nombre</button>
   <div class="ub2" id="rdisp"></div>
 </div>
 <main>
@@ -180,41 +178,51 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
     <div class="fg" id="fgrid"></div>
   </div>
   <div class="sec" id="sec-trades">
-    <!-- Person selector -->
-    <div class="card" style="margin-bottom:12px">
-      <div class="ch"><h3>👤 Con quién intercambiar</h3></div>
-      <div class="cb" style="padding:10px 13px">
-        <div id="trPersonBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-      </div>
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:5px;margin-bottom:12px">
+      <button class="tab active" id="trTab1" onclick="sTrTab('global',this)" style="font-size:11px;padding:6px 14px">🌍 Todo el álbum</button>
+      <button class="tab" id="trTab2" onclick="sTrTab('country',this)" style="font-size:11px;padding:6px 14px">🏳️ Por selección</button>
     </div>
 
-    <!-- Summary cards: what they give me / what I give them -->
-    <div id="trSummary" style="margin-bottom:12px">
-      <div class="emsg">Selecciona una persona arriba para ver los intercambios posibles</div>
-    </div>
-
-    <!-- Detail by country (shown when a person is selected) -->
-    <div id="trDetail" style="display:none">
+    <!-- GLOBAL VIEW -->
+    <div id="tr-global">
+      <!-- QR global -->
       <div class="card" style="margin-bottom:12px">
         <div class="ch">
-          <h3>📋 Detalle por selección</h3>
-          <span class="chip" id="trLbl">—</span>
+          <h3>📱 QR Global — todas mis faltantes</h3>
+          <span class="chip" id="qrGlobalChip">0 faltantes</span>
         </div>
-        <div class="cb" id="trBody" style="max-height:400px;overflow-y:auto">
-          <div class="emsg">Elige una persona primero</div>
-        </div>
-      </div>
-      <!-- QR -->
-      <div class="card">
-        <div class="ch"><h3>📱 QR mis faltantes totales</h3><span class="chip" id="qrGlobalChip">—</span></div>
         <div class="cb">
-          <p style="font-size:11px;color:var(--gray);margin-bottom:10px">Alguien escanea este QR y ve qué tiene repetido que a ti te falta.</p>
+          <p style="font-size:11px;color:var(--gray);margin-bottom:11px">Este QR contiene <strong>todas</strong> tus estampas faltantes del álbum. Cuando alguien lo escanea desde esta app, ve automáticamente cuáles de sus repetidas te sirven a ti.</p>
           <div id="qrGlobal"></div>
         </div>
       </div>
+      <!-- Global family matches -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="ch"><h3>👨‍👩‍👧‍👦 ¿Quién me puede ayudar más?</h3></div>
+        <div class="cb" id="globalMatches"></div>
+      </div>
+      <!-- Missing by country summary -->
+      <div class="card">
+        <div class="ch"><h3>📋 Resumen de faltantes por país</h3></div>
+        <div class="cb" id="globalSummary" style="max-height:320px;overflow-y:auto"></div>
+      </div>
     </div>
-    <!-- Keep these IDs so old code doesn't break -->
-    <div style="display:none"><div id="tr-global"></div><div id="tr-country"></div><div id="qrLbl"></div><div id="qrArea"></div><div id="globalMatches"></div><div id="globalSummary"></div></div>
+
+    <!-- BY COUNTRY VIEW -->
+    <div id="tr-country" style="display:none">
+      <div class="card" style="margin-bottom:12px">
+        <div class="ch"><h3>🔄 Intercambios</h3><span class="chip" id="trLbl">Selecciona un país</span></div>
+        <div class="cb" id="trBody"><div class="emsg">Selecciona una selección en la lista izquierda</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><h3>📱 QR estampas faltantes de este país</h3><span class="chip" id="qrLbl">—</span></div>
+        <div class="cb">
+          <p style="font-size:11px;color:var(--gray);margin-bottom:11px">QR con tus faltantes del país seleccionado. Al escanearlo, la app coteja qué tiene el otro de repetido que a ti te falta.</p>
+          <div id="qrArea"><div class="emsg">Selecciona un país primero</div></div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="sec" id="sec-sync">
 
@@ -223,32 +231,25 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
       <div class="ch"><h3>📤 Compartir por archivo</h3><span class="chip">Sin internet necesario</span></div>
       <div class="cb">
         <p style="font-size:11px;color:var(--gray);margin-bottom:12px">Genera un archivo con tu colección y mándalo por WhatsApp. Quien lo reciba lo importa aquí y la app coteja automáticamente los intercambios posibles.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-          <button class="btnp" onclick="exportarColeccion('todo')">📋 Copiar todo</button>
-          <button class="btns" onclick="exportarColeccion('faltantes')">❓ Copiar faltantes</button>
-          <button class="btns" onclick="exportarColeccion('repetidas')">🔁 Copiar repetidas</button>
-        </div>
-        <div id="exportOut" style="display:none;margin-bottom:12px">
-          <div style="font-size:10px;color:var(--gray);margin-bottom:5px">✅ ¡Copiado al portapapeles! También puedes seleccionar y copiar manualmente:</div>
-          <textarea id="exportTxt" readonly style="width:100%;height:80px;font-size:10px;font-family:monospace;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;color:var(--text);background:var(--glt)"></textarea>
-          <div style="font-size:10px;color:var(--gray);margin-top:5px">📱 Pega este texto en WhatsApp o Notes y mándalo. El receptor lo pega abajo para importar.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btnp" onclick="exportarColeccion('todo')">💾 Exportar todo</button>
+          <button class="btns" onclick="exportarColeccion('faltantes')">📋 Solo faltantes</button>
+          <button class="btns" onclick="exportarColeccion('repetidas')">🔁 Solo repetidas</button>
         </div>
         <div style="border-top:1px solid var(--bf);padding-top:11px">
-          <div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:7px">📥 Importar colección de alguien</div>
-          <p style="font-size:11px;color:var(--gray);margin-bottom:7px">Pega aquí el texto que te mandaron o elige el archivo .json:</p>
-          <textarea id="importTxt" placeholder="Pega aquí el JSON de nuestra app o la lista de Figuritas App..." style="width:100%;height:70px;font-size:10px;font-family:monospace;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;color:var(--text);margin-bottom:7px;outline:none"></textarea>
-          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:7px">📥 Importar archivo de alguien</div>
+          <p style="font-size:11px;color:var(--gray);margin-bottom:8px">Carga el archivo que te mandaron. Aparecerá como visitante en la vista de intercambios.</p>
+          <textarea id="importTxt" placeholder="Pega aquí el JSON de nuestra app o lista de Figuritas App..." style="width:100%;height:70px;font-size:10px;font-family:monospace;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;color:var(--text);margin-bottom:7px;outline:none"></textarea>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:7px">
             <button class="btnp" onclick="importarDesdeTexto()">✅ Importar (otro usuario)</button>
             <button class="btnp" style="background:var(--grn)" onclick="importarComoYo()">🔄 Cargar como MI colección</button>
-            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer">
-              <span class="btns" style="cursor:pointer">📂 O elegir archivo .json</span>
-              <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarColeccion(event)">
-            </label>
           </div>
-          <div style="font-size:10px;color:var(--gray);margin-bottom:4px">
-            💡 <strong>¿Vienes de Figuritas?</strong> Pega tu lista arriba y usa "Cargar como MI colección" para traer todo tu avance.
-          </div>
-          <div id="importResult" style="font-size:11px;color:var(--grn)"></div>
+          <div style="font-size:10px;color:var(--gray);margin-bottom:8px">💡 <strong>¿Vienes de Figuritas?</strong> Pega tu lista arriba y usa "Cargar como MI colección".</div>
+          <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
+            <span class="btns" style="cursor:pointer">📂 O elegir archivo .json</span>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarColeccion(event)">
+          </label>
+          <div id="importResult" style="margin-top:8px;font-size:11px;color:var(--grn)"></div>
         </div>
       </div>
     </div>
@@ -286,19 +287,6 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
     <h3>➕ Agregar persona</h3>
     <input class="mi" type="text" id="nN" placeholder="Nombre (ej. Hermano, Sobrino Nico)" maxlength="20">
     <div class="mbtns"><button class="btns" onclick="cMo('moU')">Cancelar</button><button class="btnp" onclick="addUser()">Agregar</button></div>
-  </div>
-</div>
-
-<!-- FIRST TIME / EDIT NAME MODAL -->
-<div class="mo" id="moName">
-  <div class="md">
-    <h3 id="moNameTitle">👋 ¿Cómo te llamas?</h3>
-    <p style="font-size:11px;color:var(--gray);margin-bottom:12px" id="moNameDesc">Así te van a ver los demás en los intercambios.</p>
-    <input class="mi" type="text" id="myNameInput" placeholder="Tu nombre (ej. Ale, Carnal, Sobrino...)" maxlength="20">
-    <div class="mbtns">
-      <button class="btns" id="moNameCancel" onclick="cMo('moName')" style="display:none">Cancelar</button>
-      <button class="btnp" onclick="saveMyName()">Guardar</button>
-    </div>
   </div>
 </div>
 <script>
@@ -448,121 +436,13 @@ s:['Logo FOIL','Orlando Mosquera','Luis Mejía','Fidel Escobar','Andrés Andrade
 // Totals: 960 team + 20 FOIL + 14 Coca-Cola = 994 trackable stickers
 const TOTAL_TEAM=960, TOTAL_FOIL=20, TOTAL_COCA=14;
 
-// ═══ FIREBASE INIT ════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyDOKskZE64vVfYuB2HD746aIDwit9FxFNc",
-  authDomain: "panini-2026-e15e4.firebaseapp.com",
-  projectId: "panini-2026-e15e4",
-  storageBucket: "panini-2026-e15e4.firebasestorage.app",
-  messagingSenderId: "694323001120",
-  appId: "1:694323001120:web:3b59061862987de23f0945"
-};
-let db = null;
-
-function initFirebase(){
-  return new Promise((resolve)=>{
-    // Load Firebase app script
-    const s1 = document.createElement('script');
-    s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
-    s1.onload = ()=>{
-      const s2 = document.createElement('script');
-      s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js';
-      s2.onload = ()=>{
-        try{
-          if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-          db = firebase.firestore();
-          console.log('Firebase loaded OK');
-        } catch(e){ console.error('Firebase init error:',e); }
-        resolve();
-      };
-      s2.onerror = ()=>{ console.warn('Firestore script failed'); resolve(); };
-      document.head.appendChild(s2);
-    };
-    s1.onerror = ()=>{ console.warn('Firebase app script failed'); resolve(); };
-    document.head.appendChild(s1);
-  });
-}
-
 // ═══ STATE ═══════════════════════════════════════════════
 let users=JSON.parse(localStorage.getItem('p26u')||'null')||[{id:'yo',name:'Yo',color:'#4A90D9'}];
 let cols=JSON.parse(localStorage.getItem('p26c')||'{}');
-let curU=users[0].id,selId=null,curF='all',curG='A',room=localStorage.getItem('p26r')||null;
-let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
+let curU=users[0].id,selId=null,curF='all',curG='TODOS',room=localStorage.getItem('p26r')||null;
 const COLORS=['#4A90D9','#2EC49A','#F5A623','#E05757','#9B59B6','#E67E22','#1ABC9C','#E91E63'];
-let fbUnsubscribe=null; // Firestore listener
-
-// Save to both localStorage (fast) and Firestore (permanent)
-function save(){
-  localStorage.setItem('p26u',JSON.stringify(users));
-  localStorage.setItem('p26c',JSON.stringify(cols));
-  saveToFirebase();
-}
-
+function save(){localStorage.setItem('p26u',JSON.stringify(users));localStorage.setItem('p26c',JSON.stringify(cols));}
 function col(uid){if(!cols[uid])cols[uid]={};return cols[uid];}
-
-// ─── Firebase persistence ──────────────────────────────
-let fbSaveTimer=null;
-function saveToFirebase(){
-  clearTimeout(fbSaveTimer);
-  fbSaveTimer=setTimeout(()=>{
-    if(!room||!db) return;
-    setSS('busy','Guardando...');
-    db.collection('salas').doc(room).set({
-      users: JSON.stringify(users),
-      cols: JSON.stringify(cols),
-      visitantes: JSON.stringify(visitantes),
-      ts: Date.now()
-    }).then(()=>{
-      setSS('ok','Guardado ✓');
-    }).catch(e=>{
-      console.error('Firebase save error:',e);
-      setSS('','Sin conexión');
-    });
-  }, 800);
-}
-
-function loadFromFirebase(roomCode){
-  // Unsubscribe previous listener
-  if(fbUnsubscribe) fbUnsubscribe();
-  setSS('busy','Conectando...');
-  if(!db){ setSS('','Firebase no disponible'); return; }
-  fbUnsubscribe = db.collection('salas').doc(roomCode).onSnapshot(doc=>{
-    if(doc.exists){
-      const data=doc.data();
-      const remoteUsers=JSON.parse(data.users||'[]');
-      const remoteCols=JSON.parse(data.cols||'{}');
-      const remoteVis=JSON.parse(data.visitantes||'[]');
-      if(remoteVis.length>0){
-        remoteVis.forEach(v=>{
-          if(!visitantes.find(x=>x.id===v.id)) visitantes.push(v);
-        });
-        localStorage.setItem('p26vis',JSON.stringify(visitantes));
-      }
-      // Merge: keep local data + add remote
-      remoteUsers.forEach(u=>{
-        if(!users.find(x=>x.id===u.id)) users.push(u);
-      });
-      // Merge cols: take max value
-      Object.entries(remoteCols).forEach(([uid,ucol])=>{
-        if(!cols[uid]) cols[uid]={};
-        Object.entries(ucol).forEach(([sid,v])=>{
-          if(v>(cols[uid][sid]||0)) cols[uid][sid]=v;
-        });
-      });
-      localStorage.setItem('p26u',JSON.stringify(users));
-      localStorage.setItem('p26c',JSON.stringify(cols));
-      const now=new Date().toLocaleTimeString('es-MX');
-      document.getElementById('ls2').textContent=now;
-      setSS('ok','En línea ✓');
-      renderAll();
-      // Re-check if name modal should be dismissed now that we have data
-      if(document.getElementById('moName')?.classList.contains('open')) checkFirstTime();
-    }
-  }, err=>{
-    console.error('Firebase listen error:',err);
-    setSS('','Sin conexión');
-  });
-}
 function stks(item){
   if(item.id==='FWC')return item.stickers.map(s=>({sid:'FWC-'+s.c,name:s.n,foil:!!s.foil,coca:!!s.coca}));
   return item.s.map((name,i)=>({sid:item.id+'-'+i,name,foil:i===0,coca:false}));
@@ -593,25 +473,24 @@ function renderStats(){
 
 function renderGF(){
   const d=document.getElementById('gf');d.innerHTML='';
-  ['A','B','C','D','E','F','G','H','I','J','K','L','ESP'].forEach(g=>{
+  ['TODOS','A','B','C','D','E','F','G','H','I','J','K','L','ESP'].forEach(g=>{
     const b=document.createElement('button');b.className='gbtn'+(curG===g?' active':'');
-    b.textContent=g==='ESP'?'⭐ Esp.':'G.'+g;
+    b.textContent=g==='TODOS'?'Todos':g==='ESP'?'⭐':'G.'+g;
     b.onclick=()=>{curG=g;renderCL();};d.appendChild(b);
   });
 }
 
 function renderCL(){
   const list=document.getElementById('cl');list.innerHTML='';const c=col(curU);
-  if(curG==='ESP'){
-    // Especiales
+  if(curG==='TODOS'||curG==='ESP'){
     const hv=SPECIAL.stickers.filter(s=>(c['FWC-'+s.c]||0)>=1).length;
     const tot=SPECIAL.stickers.length;
     const row=document.createElement('div');row.className='crow'+(selId==='FWC'?' sel':'');
     row.innerHTML='<div class="cf">⭐</div><div class="cn">Especiales / FOIL / Coca-Cola</div><div class="cg" style="background:var(--gold)">★</div><div class="cm"><div class="cmb"><div class="cmf" style="width:'+Math.round(hv/tot*100)+'%;background:var(--gold)"></div></div><div class="cn2">'+hv+'/'+tot+'</div></div>';
     row.onclick=()=>{selId='FWC';renderAll();};list.appendChild(row);
-    document.getElementById('ccount').textContent=tot+' especiales';
-  } else {
-    const filtered=TEAMS.filter(t=>t.group===curG);
+  }
+  if(curG!=='ESP'){
+    const filtered=curG==='TODOS'?TEAMS:TEAMS.filter(t=>t.group===curG);
     filtered.forEach(t=>{
       const hv=t.s.filter((_,i)=>(c[t.id+'-'+i]||0)>=1).length;
       const rep=t.s.filter((_,i)=>(c[t.id+'-'+i]||0)>1).length;
@@ -621,7 +500,7 @@ function renderCL(){
       row.onclick=()=>{selId=t.id;renderAll();};list.appendChild(row);
     });
     document.getElementById('ccount').textContent=filtered.length+' equipos';
-  }
+  }else{document.getElementById('ccount').textContent=SPECIAL.stickers.length+' esp.';}
 }
 
 function renderStickers(){
@@ -632,101 +511,29 @@ function renderStickers(){
   const c=col(curU),list=stks(item);grid.innerHTML='';
   list.forEach(({sid,name,foil,coca},idx)=>{
     const v=c[sid]||0,state=v===0?'missing':v===1?'have':'rep';
-    // Dim non-matching stickers instead of hiding them
-    const matches=(curF==='all')||(curF==='missing'&&state==='missing')||(curF==='have'&&state==='have')||(curF==='rep'&&state==='rep');
+    if(curF==='missing'&&state!=='missing')return;
+    if(curF==='have'&&state!=='have')return;
+    if(curF==='rep'&&state!=='rep')return;
     const d=document.createElement('div');
     let cls='stk';if(foil)cls+=' foil';if(coca)cls+=' coca';if(state==='have')cls+=' have';if(state==='rep')cls+=' rep';
     const num=selId==='FWC'?sid.replace('FWC-',''):(idx+1);
-    d.className=cls;d.title=name;d.dataset.sid=sid;if(!matches)d.style.opacity='0.25';else d.style.opacity='1';
-    const xBtn = (v>0) ? '<div class="xbtn" id="x-'+sid+'">✕</div>' : '';
-    d.innerHTML=(foil?'<div class="fb">★</div>':'')+(coca?'<div class="ccb">🥤</div>':'')+'<div class="sc">'+num+'</div><div class="spn">'+name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'')+xBtn;
-    d.onclick=e=>{
-      // If tapped the X button, remove sticker
-      if(e.target.classList.contains('xbtn')||e.target.closest('.xbtn')){
-        removeStk(sid); return;
-      }
-      tapStk(sid);
-    };
-    d.oncontextmenu=e=>e.preventDefault();
+    d.className=cls;d.title=name+' | Clic: marcar/quitar | Clic der: +repetida';
+    d.innerHTML=(foil?'<div class="fb">★</div>':'')+(coca?'<div class="ccb">🥤</div>':'')+'<div class="sc">'+num+'</div><div class="spn">'+name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'');
+    d.onclick=()=>toggleStk(sid);d.oncontextmenu=e=>{e.preventDefault();addRep(sid);};
     grid.appendChild(d);
   });
   if(!grid.children.length)grid.innerHTML='<div class="emsg" style="grid-column:1/-1">Sin estampas en este filtro</div>';
 }
 
-function tapStk(sid){
-  const c=col(curU),cur=c[sid]||0;
-  if(cur===0) c[sid]=1;
-  else if(cur<9) c[sid]=cur+1;
-  save();
-  // Update just this sticker visually without re-filtering the grid
-  updateStkVisual(sid);
-  renderStats();renderCL();
-  if(room)debouncedSync();
-}
-function removeStk(sid){
-  const c=col(curU);
-  delete c[sid];
-  save();
-  updateStkVisual(sid);
-  renderStats();renderCL();
-  if(room)debouncedSync();
-}
-function addRep(sid){tapStk(sid);}
-
-function updateStkVisual(sid){
-  // Find the sticker element and update it in place without removing it from view
-  const c=col(curU);
-  const v=c[sid]||0;
-  // Find item and index
-  let item=null,idx=0;
-  if(sid.startsWith('FWC-')){
-    item=SPECIAL;
-    idx=SPECIAL.stickers.findIndex(s=>'FWC-'+s.c===sid);
-  } else {
-    const tid=sid.split('-')[0];
-    item=TEAMS.find(t=>t.id===tid);
-    idx=parseInt(sid.split('-')[1]);
-  }
-  if(!item)return;
-  const stks_list=stks(item);
-  const stkData=stks_list[idx];
-  if(!stkData)return;
-
-  // Find the DOM element — look for element with matching onclick data
-  const grid=document.getElementById('sg');
-  if(!grid)return;
-  const allStks=grid.querySelectorAll('.stk');
-  let target=null;
-  allStks.forEach(el=>{
-    // Match by position in grid — find by data attribute we'll set
-    if(el.dataset.sid===sid) target=el;
-  });
-  if(!target){
-    // Fallback: full re-render
-    renderStickers();return;
-  }
-
-  // Update classes
-  target.className='stk'+(stkData.foil?' foil':'')+(stkData.coca?' coca':'')+(v>=1?' have':'')+(v>1?' rep':'');
-  // Update innerHTML
-  const num=sid.startsWith('FWC-')?sid.replace('FWC-',''):(idx+1);
-  const xBtn=(v>0)?'<div class="xbtn">✕</div>':'';
-  target.innerHTML=(stkData.foil?'<div class="fb">★</div>':'')+(stkData.coca?'<div class="ccb">🥤</div>':'')
-    +'<div class="sc">'+num+'</div><div class="spn">'+stkData.name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'')+xBtn;
-  // Re-bind events
-  target.onclick=e=>{
-    if(e.target.classList.contains('xbtn')||e.target.closest('.xbtn')){removeStk(sid);return;}
-    tapStk(sid);
-  };
-  target.oncontextmenu=e=>e.preventDefault();
-}
+function toggleStk(sid){const c=col(curU),cur=c[sid]||0;if(cur===0)c[sid]=1;else if(cur===1)delete c[sid];else c[sid]=1;save();renderAll();if(room)debouncedSync();}
+function addRep(sid){const c=col(curU);c[sid]=(c[sid]||0)+1;if(c[sid]>9)c[sid]=9;save();renderAll();if(room)debouncedSync();}
 function setF(f,btn){curF=f;document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStickers();}
 function sTab(tab,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+tab).classList.add('active');
   if(tab==='family')renderFamily();
-  if(tab==='trades')renderTrades();
+  if(tab==='trades'){document.getElementById('tr-global').style.display=curTrTab==='global'?'block':'none';document.getElementById('tr-country').style.display=curTrTab==='country'?'block':'none';document.getElementById('trTab1').classList.toggle('active',curTrTab==='global');document.getElementById('trTab2').classList.toggle('active',curTrTab==='country');renderTrades();}
   if(tab==='sync')renderSyncUI();
 }
 
@@ -763,167 +570,169 @@ function renderFamily(){
 }
 
 // ═══ TRADES + QR ═══════════════════════════════════════════
-let curTrPerson = null; // currently selected person id for trades
+let curTrTab='global';
+
+function sTrTab(tab,btn){
+  curTrTab=tab;
+  document.querySelectorAll('#trTab1,#trTab2').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tr-global').style.display=tab==='global'?'block':'none';
+  document.getElementById('tr-country').style.display=tab==='country'?'block':'none';
+  if(tab==='global')renderGlobalTrades();
+  else renderCountryTrades();
+}
 
 function renderTrades(){
-  renderTradePersonBtns();
-  if(curTrPerson) renderTradeDetail(curTrPerson);
-  else {
-    document.getElementById('trSummary').innerHTML='<div class="emsg">Selecciona una persona para ver los intercambios</div>';
-    document.getElementById('trDetail').style.display='none';
-  }
-  // Always render global QR
-  renderGlobalQR();
+  // Render whichever sub-tab is active
+  if(curTrTab==='global') renderGlobalTrades();
+  else renderCountryTrades();
 }
 
-function renderTradePersonBtns(){
-  const d=document.getElementById('trPersonBtns');
-  if(!d)return;
-  d.innerHTML='';
-  const others=allPeople().filter(u=>u.id!==curU);
-  if(!others.length){
-    d.innerHTML='<span style="font-size:11px;color:var(--gray)">Agrega personas en Sync para ver intercambios</span>';
-    return;
-  }
-  others.forEach(u=>{
-    const btn=document.createElement('button');
-    btn.className='ubtn'+(curTrPerson===u.id?' active':'');
-    btn.style.cssText='background:'+(curTrPerson===u.id?u.color||'var(--blue)':'rgba(74,144,217,.1)')+';color:'+(curTrPerson===u.id?'#fff':u.color||'var(--blue)')+';border:1px solid '+(u.color||'var(--blue)')+';padding:5px 14px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600;font-family:Barlow,sans-serif';
-    btn.textContent=u.name.replace(' 📂','')+(u.isVisitor?' 📂':'');
-    btn.onclick=()=>{curTrPerson=u.id;renderTrades();};
-    d.appendChild(btn);
-  });
-}
-
-function renderTradeDetail(uid){
-  const myC=col(curU);
-  const thC=getColForId(uid);
-  const person=allPeople().find(u=>u.id===uid);
-  if(!person)return;
-
-  // Build full lists
-  const theyCanGive=[]; // their repeated that I'm missing
-  const iCanGive=[];    // my repeated that they're missing
-
+// ── GLOBAL view ─────────────────────────────────────────
+function getAllMissing(){
+  const myC=col(curU), missing=[];
   TEAMS.forEach(t=>{
     t.s.forEach((_,i)=>{
-      const sid=t.id+'-'+i;
-      const myV=myC[sid]||0;
-      const thV=thC[sid]||0;
-      // They give me: they have repeated (>1) AND I'm missing (0)
-      if(thV>1&&myV===0) theyCanGive.push({sid,tid:t.id,idx:i,name:t.s[i],team:t});
-      // Visitor faltantes mode: thV===-1 means they're missing
-      if(person.isVisitor&&person.modo==='faltantes'){
-        if(thV===-1&&myV>1) iCanGive.push({sid,tid:t.id,idx:i,name:t.s[i],team:t});
-      } else {
-        if(myV>1&&(thV===0||thV===-1)) iCanGive.push({sid,tid:t.id,idx:i,name:t.s[i],team:t});
-      }
+      if((myC[t.id+'-'+i]||0)===0) missing.push({sid:t.id+'-'+i,tid:t.id,idx:i,name:t.s[i],team:t});
     });
   });
-
-  // Group by team
-  const groupByTeam=(list)=>{
-    const map={};
-    list.forEach(item=>{
-      if(!map[item.tid]) map[item.tid]={team:item.team,items:[]};
-      map[item.tid].items.push(item);
-    });
-    return Object.values(map).sort((a,b)=>a.team.group.localeCompare(b.team.group));
-  };
-
-  const theyGroups=groupByTeam(theyCanGive);
-  const iGroups=groupByTeam(iCanGive);
-
-  // ── Summary cards
-  const sumDiv=document.getElementById('trSummary');
-  sumDiv.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-      <div class="card" style="border-top:3px solid var(--grn)">
-        <div class="cb" style="text-align:center;padding:14px 10px">
-          <div style="font-size:28px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--grn)">${theyCanGive.length}</div>
-          <div style="font-size:10px;color:var(--gray);margin-top:2px;text-transform:uppercase;letter-spacing:.6px">${person.name.replace(' 📂','')} me puede dar</div>
-        </div>
-      </div>
-      <div class="card" style="border-top:3px solid var(--blue)">
-        <div class="cb" style="text-align:center;padding:14px 10px">
-          <div style="font-size:28px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--blue)">${iCanGive.length}</div>
-          <div style="font-size:10px;color:var(--gray);margin-top:2px;text-transform:uppercase;letter-spacing:.6px">Yo le puedo dar</div>
-        </div>
-      </div>
-    </div>`;
-
-  document.getElementById('trDetail').style.display='block';
-  document.getElementById('trLbl').textContent=person.name.replace(' 📂','');
-
-  // ── Detail by country
-  const body=document.getElementById('trBody');
-  if(!theyCanGive.length&&!iCanGive.length){
-    body.innerHTML='<div class="emsg">No hay intercambios posibles con '+person.name.replace(' 📂','')+'</div>';
-    return;
-  }
-
-  let html='';
-
-  // Section 1: They give me
-  if(theyGroups.length){
-    html+='<div style="font-size:11px;font-weight:700;color:var(--grn);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📥 '+person.name.replace(' 📂','')+' me puede dar ('+theyCanGive.length+'):</div>';
-    theyGroups.forEach(({team,items})=>{
-      html+='<div style="margin-bottom:8px;background:var(--glt);border-radius:7px;padding:8px 10px;border:1px solid #DCE8F5">';
-      html+='<div style="font-size:11px;font-weight:600;margin-bottom:5px">'+team.flag+' '+team.name+' <span style="font-size:9px;color:var(--gray)">G.'+team.group+'</span></div>';
-      html+='<div style="display:flex;flex-wrap:wrap;gap:3px">';
-      items.forEach(({idx,name})=>{
-        html+='<span style="font-size:9px;background:#E8FFF5;color:#1A7A5A;border:1px solid #7FD4B0;padding:2px 6px;border-radius:5px;font-weight:600">#'+(idx+1)+' '+name+'</span>';
-      });
-      html+='</div></div>';
-    });
-  }
-
-  // Section 2: I give them
-  if(iGroups.length){
-    html+='<div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">📤 Yo le puedo dar a '+person.name.replace(' 📂','')+' ('+iCanGive.length+'):</div>';
-    iGroups.forEach(({team,items})=>{
-      html+='<div style="margin-bottom:8px;background:var(--glt);border-radius:7px;padding:8px 10px;border:1px solid #DCE8F5">';
-      html+='<div style="font-size:11px;font-weight:600;margin-bottom:5px">'+team.flag+' '+team.name+' <span style="font-size:9px;color:var(--gray)">G.'+team.group+'</span></div>';
-      html+='<div style="display:flex;flex-wrap:wrap;gap:3px">';
-      items.forEach(({idx,name})=>{
-        html+='<span style="font-size:9px;background:var(--bf);color:var(--bdk);border:1px solid var(--blt);padding:2px 6px;border-radius:5px;font-weight:600">#'+(idx+1)+' '+name+'</span>';
-      });
-      html+='</div></div>';
-    });
-  }
-
-  body.innerHTML=html;
+  return missing;
 }
 
-function renderGlobalQR(){
-  const area=document.getElementById('qrGlobal');
-  if(!area)return;
+function renderGlobalTrades(){
+  const allMissing=getAllMissing();
   const myC=col(curU);
   const me=users.find(u=>u.id===curU);
-  const compact={u:me?.name||'?',m:{}};
-  TEAMS.forEach(t=>t.s.forEach((_,i)=>{
-    if((myC[t.id+'-'+i]||0)===0){
-      if(!compact.m[t.id])compact.m[t.id]=[];
-      compact.m[t.id].push(i+1);
-    }
-  }));
-  const total=Object.values(compact.m).reduce((s,a)=>s+a.length,0);
-  document.getElementById('qrGlobalChip').textContent=total+' faltantes';
-  if(!total){area.innerHTML='<div class="emsg">🏆 ¡Álbum completo!</div>';return;}
-  const payload=JSON.stringify(compact);
-  area.innerHTML='<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">'
-    +'<div><div id="qrGlobalDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
-    +'<div style="font-size:10px;color:var(--gray);margin-top:5px;max-width:170px;text-align:center">Escanea para ver qué me puedes dar</div></div>'
-    +'<div style="flex:1;min-width:140px;font-size:10px;color:var(--gray)">Faltan <strong style="color:var(--text)">'+total+'</strong> estampas en <strong style="color:var(--text)">'+Object.keys(compact.m).length+'</strong> países</div></div>';
-  try{new QRCode(document.getElementById('qrGlobalDiv'),{text:payload,width:140,height:140,colorDark:'#1C2B3A',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L});}
-  catch(e){document.getElementById('qrGlobalDiv').textContent='QR listo';}
+
+  // ── QR global
+  document.getElementById('qrGlobalChip').textContent=allMissing.length+' faltantes';
+  const qrArea=document.getElementById('qrGlobal');
+  if(!allMissing.length){
+    qrArea.innerHTML='<div class="emsg">🏆 ¡Álbum completo!</div>';
+  } else {
+    // Compact payload: {u: name, m: {teamId: [idx,...], ...}}
+    const compact={u:me?.name||'?',m:{}};
+    allMissing.forEach(({tid,idx})=>{if(!compact.m[tid])compact.m[tid]=[];compact.m[tid].push(idx+1);});
+    const payload=JSON.stringify(compact);
+    qrArea.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
+      +'<div><div id="qrGlobalDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
+      +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR con TODAS tus faltantes · Escanea para cotejar repetidas</div></div>'
+      +'<div style="flex:1;min-width:180px">'
+      +'<div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:8px">'+allMissing.length+' estampas pendientes en '+Object.keys(compact.m).length+' países</div>'
+      +'<div style="font-size:10px;color:var(--gray)">Países incompletos:</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">'
+      +TEAMS.filter(t=>compact.m[t.id]).map(t=>'<span class="mb">'+t.flag+' '+t.name+' ('+compact.m[t.id].length+')</span>').join('')
+      +'</div></div></div>';
+    try{new QRCode(document.getElementById('qrGlobalDiv'),{text:payload,width:160,height:160,colorDark:'#1C2B3A',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L});}
+    catch(e){document.getElementById('qrGlobalDiv').textContent='QR generado (lista grande)';}
+  }
+
+  // ── Who helps me most
+  const gm=document.getElementById('globalMatches');
+  if(users.length<=1){gm.innerHTML='<div class="emsg">Agrega más personas para ver coincidencias</div>';} 
+  else {
+    const rows=allPeople().filter(u=>u.id!==curU).map(u=>{
+      const thC=getColForId(u.id);
+      const canGive=allMissing.filter(({sid})=>(thC[sid]||0)>1);
+      // What they need from me
+      const allTheirMissing=[];
+      TEAMS.forEach(t=>t.s.forEach((_,i)=>{const v=thC[t.id+'-'+i]||0;if(v===0||v===-1)allTheirMissing.push(t.id+'-'+i);}));
+      const iGive=allTheirMissing.filter(sid=>(myC[sid]||0)>1);
+      return {u,canGive,iGive};
+    }).sort((a,b)=>b.canGive.length-a.canGive.length);
+
+    let html='<div class="tgrid">';
+    rows.forEach(({u,canGive,iGive})=>{
+      // Group canGive by team for display
+      const byTeam={};
+      canGive.forEach(({tid,idx,team})=>{if(!byTeam[tid])byTeam[tid]={team,nums:[]};byTeam[tid].nums.push(idx+1);});
+      html+='<div class="tcard"><h4><div class="av" style="background:'+(u.color||'#4A90D9')+';width:20px;height:20px;font-size:9px">'+u.name.substring(0,2).toUpperCase()+'</div>'+u.name
+        +'<span style="margin-left:auto;font-size:9px;background:var(--grn);color:#fff;padding:2px 7px;border-radius:8px;font-weight:700">'+canGive.length+' te puede dar</span></h4>';
+      if(!canGive.length){
+        html+='<div style="font-size:9px;color:var(--gray)">No tiene repetidas que te sirvan</div>';
+      } else {
+        html+='<div style="font-size:9px;color:var(--gray);margin-bottom:4px">📥 Sus repetidas que me faltan a mí:</div><div class="mbdg">';
+        Object.values(byTeam).forEach(({team,nums})=>{
+          html+='<span class="mb key">'+team.flag+' '+team.name+': #'+nums.join(', #')+'</span>';
+        });
+        html+='</div>';
+      }
+      html+='<div style="font-size:9px;color:var(--gray);margin:6px 0 3px">📤 Mis repetidas que le faltan a él/ella: <strong style="color:var(--text)">'+iGive.length+'</strong></div>';
+      html+='</div>';
+    });
+    html+='</div>';
+    gm.innerHTML=html;
+  }
+
+  // ── Summary by country
+  const gs=document.getElementById('globalSummary');
+  const incomplete=TEAMS.filter(t=>t.s.some((_,i)=>(myC[t.id+'-'+i]||0)===0));
+  if(!incomplete.length){gs.innerHTML='<div class="emsg">🏆 ¡Todos los países completos!</div>';return;}
+  let sh='<div style="display:flex;flex-direction:column;gap:5px">';
+  incomplete.forEach(t=>{
+    const missing=t.s.map((_,i)=>({sid:t.id+'-'+i,num:i+1,name:t.s[i]})).filter(({sid})=>(myC[sid]||0)===0);
+    sh+='<div style="background:var(--glt);border-radius:6px;padding:7px 10px;border:1px solid #DCE8F5">'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+      +'<span style="font-size:13px">'+t.flag+'</span>'
+      +'<span style="font-size:11px;font-weight:600">'+t.name+'</span>'
+      +'<span style="font-size:9px;background:var(--red);color:#fff;padding:1px 6px;border-radius:8px;margin-left:auto">'+missing.length+' faltan</span></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:2px">'
+      +missing.map(({num,name})=>'<span class="mb" title="'+name+'">#'+num+'</span>').join('')
+      +'</div></div>';
+  });
+  sh+='</div>';
+  gs.innerHTML=sh;
 }
 
-// Keep stubs for old references
-function sTrTab(tab,btn){}
-function renderGlobalTrades(){renderTrades();}
-function renderCountryTrades(){renderTrades();}
-function renderQR(missing,team){}
+// ── BY COUNTRY view ──────────────────────────────────────
+function renderCountryTrades(){
+  const body=document.getElementById('trBody');
+  document.getElementById('qrLbl').textContent=selId&&selId!=='FWC'?(TEAMS.find(t=>t.id===selId)||{name:'?'}).name:'—';
+  document.getElementById('trLbl').textContent=selId&&selId!=='FWC'?(TEAMS.find(t=>t.id===selId)||{flag:'',name:'?'}).flag+' '+(TEAMS.find(t=>t.id===selId)||{name:'?'}).name:'Selecciona un país';
+  if(!selId||selId==='FWC'){body.innerHTML='<div class="emsg">Selecciona una selección en la lista izquierda</div>';renderQR([]);return;}
+  const t=TEAMS.find(x=>x.id===selId),myC=col(curU);
+  const myMissing=t.s.map((_,i)=>t.id+'-'+i).filter(sid=>(myC[sid]||0)===0);
+  const myRep=t.s.map((_,i)=>t.id+'-'+i).filter(sid=>(myC[sid]||0)>1);
+  if(!myMissing.length){body.innerHTML='<div class="emsg">✅ ¡Completo '+t.flag+' '+t.name+'!</div>';renderQR([]);return;}
+  let html='<p style="font-size:11px;color:var(--gray);margin-bottom:10px">Te faltan <strong style="color:var(--text)">'+myMissing.length+'</strong> de '+t.flag+' '+t.name+':</p><div class="tgrid">';
+  allPeople().forEach(u=>{
+    const thC=getColForId(u.id);
+    const theyGive=myMissing.filter(sid=>(thC[sid]||0)>1||(u.isVisitor&&u.modo==='repetidas'&&(thC[sid]||0)>1));
+    const iGive=u.id!==curU?t.s.map((_,i)=>t.id+'-'+i).filter(sid=>{const v=thC[sid]||0;return (v===0||v===-1)&&(myC[sid]||0)>1}):[];
+    const isMe=u.id===curU;
+    const visBadge=u.isVisitor?'<span style="font-size:8px;background:#9B59B6;color:#fff;padding:1px 4px;border-radius:4px">📂</span>':'';
+    html+='<div class="tcard"><h4><div class="av" style="background:'+(u.color||'#4A90D9')+';width:20px;height:20px;font-size:9px">'+u.name.replace(' 📂','').substring(0,2).toUpperCase()+'</div>'+u.name.replace(' 📂','')+(isMe?' (Tú)':'')+visBadge+'</h4>';
+    if(!isMe){
+      html+='<div style="font-size:9px;color:var(--gray);margin-bottom:3px">📥 Puede darte:</div>';
+      if(!theyGive.length)html+='<div style="font-size:9px;color:var(--gray)">Ninguna 😕</div>';
+      else{html+='<div class="mbdg">';theyGive.forEach(sid=>{const i=parseInt(sid.split('-')[1]);html+='<span class="mb key">#'+(i+1)+' '+t.s[i]+'</span>';});html+='</div>';}
+      html+='<div style="font-size:9px;color:var(--gray);margin:5px 0 3px">📤 Le puedo dar:</div>';
+      if(!iGive.length)html+='<div style="font-size:9px;color:var(--gray)">Ninguna</div>';
+      else{html+='<div class="mbdg">';iGive.forEach(sid=>{const i=parseInt(sid.split('-')[1]);html+='<span class="mb">#'+(i+1)+' '+t.s[i]+'</span>';});html+='</div>';}
+    }else{
+      html+='<div style="font-size:9px;color:var(--gray);margin-bottom:3px">🔁 Mis repetidas:</div>';
+      if(!myRep.length)html+='<div style="font-size:9px;color:var(--gray)">Sin repetidas</div>';
+      else{html+='<div class="mbdg">';myRep.forEach(sid=>{const i=parseInt(sid.split('-')[1]);html+='<span class="mb rp">#'+(i+1)+'</span>';});html+='</div>';}
+    }
+    html+='</div>';
+  });
+  html+='</div>';body.innerHTML=html;renderQR(myMissing,t);
+}
+
+function renderQR(missing,team){
+  const area=document.getElementById('qrArea');
+  if(!missing||!missing.length){area.innerHTML='<div class="emsg">Sin estampas faltantes en este país</div>';return;}
+  const me=users.find(u=>u.id===curU);
+  const nums=missing.map(sid=>parseInt(sid.split('-')[1])+1);
+  const payload=JSON.stringify({u:me?.name||'?',t:team?.id,mis:nums});
+  area.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
+    +'<div><div id="qrDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
+    +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR de '+team?.name+' · Escanea para cotejar</div></div>'
+    +'<div style="flex:1;min-width:150px"><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:5px">Me faltan '+nums.length+' de '+team?.name+':</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:3px">'+nums.map(n=>'<span class="mb">#'+n+' '+team.s[n-1]+'</span>').join('')+'</div></div></div>';
+  try{new QRCode(document.getElementById('qrDiv'),{text:payload,width:150,height:150,colorDark:'#1C2B3A',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});}
+  catch(e){document.getElementById('qrDiv').innerHTML='<span style="font-size:10px;color:var(--gray)">Lista muy grande para QR</span>';}
+}
 
 // ═══ USERS ═══════════════════════════════════════════════
 function openAddUser(){document.getElementById('nN').value='';document.getElementById('moU').classList.add('open');setTimeout(()=>document.getElementById('nN').focus(),100);}
@@ -933,335 +742,90 @@ function addUser(){const n=document.getElementById('nN').value.trim();if(!n)retu
 // ═══ SYNC ═══════════════════════════════════════════════
 function renderSyncUI(){document.getElementById('ri').style.display=room?'block':'none';if(room)document.getElementById('bc').textContent=room;}
 function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<8;i++){if(i===4)s+='-';s+=c[Math.floor(Math.random()*c.length)];}return s;}
-function createRoom(){
-  room=genCode();localStorage.setItem('p26r',room);
-  renderSyncUI();renderUsers();
-  loadFromFirebase(room);saveToFirebase();
+function createRoom(){room=genCode();localStorage.setItem('p26r',room);renderSyncUI();renderUsers();syncNow();}
+function joinRoom(){const v=document.getElementById('rIn').value.trim().toUpperCase();if(v.length<6){alert('Código inválido');return;}room=v;localStorage.setItem('p26r',room);document.getElementById('jw').style.display='none';renderSyncUI();renderUsers();syncNow();}
+function leaveRoom(){if(!confirm('¿Salir de la sala? Tus datos locales se conservan.'))return;room=null;localStorage.removeItem('p26r');renderSyncUI();renderUsers();setSS('','Sin sala');}
+function setSS(s,m){document.getElementById('sd').className='sd'+(s==='ok'?' ok':s==='busy'?' busy':'');document.getElementById('sl').textContent=m;}
+let st=null;function debouncedSync(){clearTimeout(st);st=setTimeout(syncNow,2500);}
+async function syncNow(){
+  if(!room){setSS('','Sin sala');return;}setSS('busy','Sincronizando...');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+    system:'Servidor de sync Panini. Recibe {room,users,cols}. Responde SOLO JSON {"users":[...],"cols":{...}} fusionando: cols=MAX entre entrada y datos previos de esa sala; users=unión sin duplicar ids. Solo JSON, sin backticks.',
+    messages:[{role:'user',content:JSON.stringify({room,users,cols})}]})});
+    const data=await res.json();const txt=data.content?.find(b=>b.type==='text')?.text||'';
+    const merged=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(merged.users)users=merged.users;if(merged.cols)cols=merged.cols;
+    save();document.getElementById('ls2').textContent=new Date().toLocaleTimeString('es-MX');
+    setSS('ok','Sincronizado ✓');renderAll();
+    setTimeout(()=>{if(room)syncNow();},30000);
+  }catch(e){console.error(e);setSS('','Error sync');}
 }
-function joinRoom(){
-  const v=document.getElementById('rIn').value.trim().toUpperCase();
-  if(v.length<6){alert('Código inválido');return;}
-  room=v;localStorage.setItem('p26r',room);
-  document.getElementById('jw').style.display='none';
-  renderSyncUI();renderUsers();loadFromFirebase(room);
-}
-function leaveRoom(){
-  if(!confirm('¿Salir de la sala?'))return;
-  if(fbUnsubscribe){fbUnsubscribe();fbUnsubscribe=null;}
-  room=null;localStorage.removeItem('p26r');
-  renderSyncUI();renderUsers();setSS('','Sin sala');
-}
-function setSS(s,m){
-  document.getElementById('sd').className='sd'+(s==='ok'?' ok':s==='busy'?' busy':'');
-  document.getElementById('sl').textContent=m;
-}
-function debouncedSync(){saveToFirebase();}
-function syncNow(){if(room)saveToFirebase();}
-
 // ═══ EXPORT / IMPORT ═══════════════════════════════════════
-function buildExportData(modo){
+function exportarColeccion(modo){
   const c=col(curU);
   const me=users.find(u=>u.id===curU);
-  const data={version:1,app:'Panini2026',usuario:me?.name||'?',
+
+  // Build structured export
+  const data={
+    version:1,
+    app:'Panini FIFA 2026 · Guperion Systems',
+    usuario:me?.name||'?',
     fecha:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}),
-    modo,coleccion:{}};
+    modo,
+    coleccion:{}
+  };
+
   TEAMS.forEach(t=>{
     const entry={};
     t.s.forEach((_,i)=>{
-      const sid=t.id+'-'+i,v=c[sid]||0;
+      const sid=t.id+'-'+i;
+      const v=c[sid]||0;
       if(modo==='todo'&&v>0) entry[i+1]=v;
       else if(modo==='faltantes'&&v===0) entry[i+1]=0;
       else if(modo==='repetidas'&&v>1) entry[i+1]=v;
     });
-    if(Object.keys(entry).length>0) data.coleccion[t.id]={nombre:t.name,flag:t.flag,grupo:t.group,estampas:entry};
+    if(Object.keys(entry).length>0){
+      data.coleccion[t.id]={
+        nombre:t.name,
+        flag:t.flag,
+        grupo:t.group,
+        estampas:entry
+      };
+    }
   });
+  // Include specials
   const specEntry={};
   SPECIAL.stickers.forEach(s=>{
-    const sid='FWC-'+s.c,v=c[sid]||0;
+    const sid='FWC-'+s.c;
+    const v=c[sid]||0;
     if(modo==='todo'&&v>0) specEntry[s.c]=v;
     else if(modo==='faltantes'&&v===0) specEntry[s.c]=0;
     else if(modo==='repetidas'&&v>1) specEntry[s.c]=v;
   });
-  if(Object.keys(specEntry).length>0) data.coleccion['FWC']={nombre:'Especiales',estampas:specEntry};
-  return JSON.stringify(data);
+  if(Object.keys(specEntry).length>0) data.coleccion['FWC']={nombre:'Especiales/FOIL/Coca-Cola',estampas:specEntry};
+
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const modoLabel=modo==='todo'?'coleccion':modo==='faltantes'?'faltantes':'repetidas';
+  a.href=url;
+  a.download='panini2026_'+(me?.name||'yo').replace(/\s+/g,'_')+'_'+modoLabel+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
-function exportarColeccion(modo){
-  const json=buildExportData(modo);
-  // Show text area always (clipboard may fail on some browsers)
-  const outDiv=document.getElementById('exportOut');
-  const txt=document.getElementById('exportTxt');
-  outDiv.style.display='block';
-  txt.value=json;
-  txt.select();
-  // Try clipboard
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(json).then(()=>{
-      outDiv.querySelector('div').textContent='✅ ¡Copiado al portapapeles! También puedes seleccionar el texto de abajo:';
-    }).catch(()=>{
-      outDiv.querySelector('div').textContent='📋 Selecciona todo el texto de abajo y cópialo (Ctrl+A / Cmd+A):';
-    });
-  } else {
-    try{document.execCommand('copy');}catch(e){}
-    outDiv.querySelector('div').textContent='📋 Selecciona todo el texto de abajo y cópialo:';
-  }
-}
+// Visitors: imported collections shown in trades view
+let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
 
-function importarDesdeTexto(){
-  const txt=document.getElementById('importTxt').value.trim();
-  if(!txt){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero el texto recibido</span>';return;}
-  // Detect format
-  const looksLikeFiguritas = txt.includes('Figuritas') || txt.includes('Me faltan') 
-    || txt.includes('I need') || txt.includes('Swaps') || txt.includes('Repetidas');
-  if(looksLikeFiguritas){
-    importarDesdeFiguritas(txt);
-  } else {
-    procesarImport(txt);
-  }
-  document.getElementById('importTxt').value='';
-}
-
-function importarDesdeFiguritas(txt){
-  // Ask for name
-  const name=prompt('¿Cómo se llama esta persona? (para identificarla en intercambios)','');
-  if(!name){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Cancelado</span>';return;}
-
-  try{
-    // Parse into a temp collection object
-    const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
-    const hasMissingSection=txt.includes('Me faltan')||txt.includes('Missing')||txt.includes('I need')||txt.includes("I'm missing");
-    const hasRepeatedSection=txt.includes('Repetidas')||txt.includes('Repeated')||txt.includes('Swaps');
-    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];          // 5 estampas: 00-4
-    const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];              // 4 estampas: 5-8
-    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19']; // 11 estampas: 9-19
-    const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
-    const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
-      'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
-      'BEL','EGY','IRN','NZL','ESP','CPV','KSA','URU','FRA','SEN','IRQ','NOR',
-      'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
-
-    // Detect list type — partial lists need different logic
-    const hasMissingSection=txt.includes('Me faltan')||txt.includes('Missing')||txt.includes('I need')||txt.includes("I'm missing");
-    const hasRepeatedSection=txt.includes('Repetidas')||txt.includes('Repeated')||txt.includes('Duplicated')||txt.includes('Swaps')||txt.includes('Swap');
-    const hasHaveSection=txt.includes('Tengo')||txt.includes('I have')||txt.includes('My stickers');
-    // If ONLY repeated section: everything not listed = 0 (not have, not missing)
-    // If ONLY missing section: everything not listed = have (1)
-    // If ONLY have section: only listed = have, rest = 0
-    // If missing+repeated: standard mode
-
-    let mode='';
-    const missing={},repeated={},have={};
-    lines.forEach(line=>{
-      // Section headers — Spanish and English (all Figuritas variants)
-      if(/^(Me faltan|Missing stickers|I need|I'm missing|Missing)/i.test(line)){mode='missing';return;}
-      if(/^(Repetidas|Repeated|Duplicated|Duplicates|Swaps|Swap)/i.test(line)){mode='repeated';return;}
-      if(/^(Tengo|I have|My stickers|Have)/i.test(line)){mode='have';return;}
-      if(!mode
-        ||line.startsWith('http')
-        ||/^(Descarga|Download)/i.test(line)
-        ||/^Figuritas/i.test(line)
-        ||/^(Use |Usa )/i.test(line))return;
-      const colonIdx=line.indexOf(':');if(colonIdx<0)return;
-      const prefix=line.substring(0,colonIdx).trim();
-      const nums=line.substring(colonIdx+1).trim().split(',').map(n=>parseInt(n.trim())).filter(n=>!isNaN(n));
-      if(!nums.length)return;
-      let tk='';
-      if(prefix.includes('🏆'))tk='FWC_TROPHY';
-      else if(prefix.includes('🌎'))tk='FWC_WORLD';
-      else if(prefix.includes('📜'))tk='FWC_HISTORY';
-      else if(prefix.startsWith('CC'))tk='CC';
-      else tk=prefix.split(' ')[0].toUpperCase();
-      if(mode==='missing'){if(!missing[tk])missing[tk]=[];missing[tk].push(...nums);}
-      else if(mode==='repeated'){if(!repeated[tk])repeated[tk]=[];repeated[tk].push(...nums);}
-      else if(mode==='have'){if(!have[tk])have[tk]=[];have[tk].push(...nums);}
-    });
-    const vcol={};
-    const setS=(code,v)=>{vcol['FWC-'+code]=v;};
-    [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([k,arr])=>{
-      const hasMis=missing[k]!==undefined,hasRep=repeated[k]!==undefined,hasHv=have[k]!==undefined;
-      if(!hasMis&&!hasRep&&!hasHv) return;
-      arr.forEach((code,i)=>{
-        const n=i+1;
-        if((repeated[k]||[]).includes(n)) setS(code,2);
-        else if(hasHv&&(have[k]||[]).includes(n)) setS(code,1);
-        else if(hasMis&&(missing[k]||[]).includes(n)) {}
-        else if(hasMis) setS(code,1);
-      });
-    });
-    if(missing['CC']!==undefined||repeated['CC']!==undefined||have['CC']!==undefined){
-      ccCodes.forEach((code,i)=>{
-        const n=i+1;
-        if((repeated['CC']||[]).includes(n)) vcol['FWC-'+code]=2;
-        else if(have['CC']&&(have['CC']||[]).includes(n)) vcol['FWC-'+code]=1;
-        else if((missing['CC']||[]).includes(n)) {}
-        else if(missing['CC']!==undefined) vcol['FWC-'+code]=1;
-      });
-    }
-    teamIds.forEach(tid=>{
-      const hasMissing=missing[tid]!==undefined;
-      const hasRepeated=repeated[tid]!==undefined;
-      const hasHave=have[tid]!==undefined;
-      if(!hasMissing&&!hasRepeated&&!hasHave){
-        if(hasMissingSection){
-          for(let i=0;i<20;i++) vcol[tid+'-'+i]=1;
-        }
-        return;
-      }
-      for(let i=0;i<20;i++){
-        const n=i+1,sid=tid+'-'+i;
-        if((repeated[tid]||[]).includes(n)){ vcol[sid]=2; }
-        else if(hasHave&&(have[tid]||[]).includes(n)){ vcol[sid]=1; }
-        else if(hasMissing&&(missing[tid]||[]).includes(n)){ /* missing=0 */ }
-        else if(hasMissing){ vcol[sid]=1; }
-      }
-    });
-
-    // Save as visitor
-    const id='vis_fig_'+name.replace(/ +/g,'_');
-    const vis={id,name:name+' (Fig)',color:'#9B59B6',fecha:new Date().toLocaleDateString('es-MX'),modo:'todo',col:vcol};
-    const existIdx=visitantes.findIndex(v=>v.id===id);
-    if(existIdx>=0)visitantes[existIdx]=vis;else visitantes.push(vis);
-    localStorage.setItem('p26vis',JSON.stringify(visitantes));
-    if(room)saveToFirebase();
-    document.getElementById('importResult').innerHTML='✅ Lista de <strong>'+name+'</strong> importada desde Figuritas. Ve a Intercambios.';
-    if(document.querySelector('.tab.active')?.textContent.includes('Intercambio'))renderTrades();
-    if(document.querySelector('.tab.active')?.textContent.includes('Familia'))renderFamily();
-  }catch(err){
-    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
-    console.error(err);
-  }
-}
-
-function importarComoYo(){
-  const txt=document.getElementById('importTxt').value.trim();
-  if(!txt){
-    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero tu lista de Figuritas arriba</span>';
-    return;
-  }
-  // Accept any Figuritas format (Spanish or English)
-  const isFiguritas = txt.includes('Figuritas App') || txt.includes('Me faltan') 
-    || txt.includes('I need') || txt.includes('Swaps') || txt.includes('Repetidas');
-  if(!isFiguritas){
-    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Este botón es solo para listas de Figuritas App</span>';
-    return;
-  }
-  if(!confirm('¿Cargar esta lista como TU colección? Esto reemplazará tu avance actual en la app.\n\nTu nombre actual: '+users[0].name)){
-    return;
-  }
-  // Parse same as Figuritas but load into curU instead of visitor
-  parseFiguritasIntoUser(txt, curU);
-  document.getElementById('importTxt').value='';
-}
-
-function parseFiguritasIntoUser(txt, targetUserId){
-  try{
-    const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
-    const hasMissingSection=txt.includes('Me faltan')||txt.includes('Missing')||txt.includes('I need')||txt.includes("I'm missing");
-    const hasRepeatedSection=txt.includes('Repetidas')||txt.includes('Repeated')||txt.includes('Swaps');
-    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];          // 5 estampas: 00-4
-    const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];              // 4 estampas: 5-8
-    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19']; // 11 estampas: 9-19
-    const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
-    const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
-      'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
-      'BEL','EGY','IRN','NZL','ESP','CPV','KSA','URU','FRA','SEN','IRQ','NOR',
-      'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
-
-    let mode='';
-    const missing={}, repeated={}, have={};
-
-    lines.forEach(line=>{
-      if(/^(Me faltan|Missing stickers|I need|I'm missing|Missing)/i.test(line)){mode='missing';return;}
-      if(/^(Repetidas|Repeated|Duplicated|Duplicates|Swaps|Swap)/i.test(line)){mode='repeated';return;}
-      if(/^(Tengo|I have|My stickers|Have)/i.test(line)){mode='have';return;}
-      if(!mode
-        ||line.startsWith('http')
-        ||/^(Descarga|Download)/i.test(line)
-        ||/^Figuritas/i.test(line)
-        ||/^(Use |Usa )/i.test(line))return;
-      const colonIdx=line.indexOf(':');
-      if(colonIdx<0)return;
-      const prefix=line.substring(0,colonIdx).trim();
-      const numsStr=line.substring(colonIdx+1).trim();
-      const nums=numsStr.split(',').map(n=>parseInt(n.trim())).filter(n=>!isNaN(n));
-      if(!nums.length)return;
-      let teamKey='';
-      if(prefix.includes('🏆')) teamKey='FWC_TROPHY';
-      else if(prefix.includes('🌎')) teamKey='FWC_WORLD';
-      else if(prefix.includes('📜')) teamKey='FWC_HISTORY';
-      else if(prefix.startsWith('CC')) teamKey='CC';
-      else teamKey=prefix.split(' ')[0].toUpperCase();
-      if(mode==='missing'){if(!missing[teamKey])missing[teamKey]=[];missing[teamKey].push(...nums);}
-      else{if(!repeated[teamKey])repeated[teamKey]=[];repeated[teamKey].push(...nums);}
-    });
-
-    // Build new collection
-    const newCol={};
-    const setSpecial=(code,v)=>{newCol['FWC-'+code]=v;};
-
-    [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([key,arr])=>{
-      const hasMis=missing[key]!==undefined,hasRep=repeated[key]!==undefined,hasHv=have[key]!==undefined;
-      if(!hasMis&&!hasRep&&!hasHv){
-        if(hasMissingSection) arr.forEach(code=>setSpecial(code,1));
-        return;
-      }
-      arr.forEach((code,i)=>{
-        const num=i+1;
-        if((repeated[key]||[]).includes(num)) setSpecial(code,2);
-        else if(hasHv&&(have[key]||[]).includes(num)) setSpecial(code,1);
-        else if(hasMis&&(missing[key]||[]).includes(num)) {}
-        else if(hasMis) setSpecial(code,1);
-      });
-    });
-    // CC: if not mentioned at all and hasMissingSection, assume complete
-    if(missing['CC']!==undefined||repeated['CC']!==undefined||have['CC']!==undefined){
-      ccCodes.forEach((code,i)=>{
-        const num=i+1;
-        if((repeated['CC']||[]).includes(num)) newCol['FWC-'+code]=2;
-        else if(have['CC']&&(have['CC']||[]).includes(num)) newCol['FWC-'+code]=1;
-        else if(missing['CC']!==undefined&&(missing['CC']||[]).includes(num)) {}
-        else if(missing['CC']!==undefined) newCol['FWC-'+code]=1;
-      });
-    } else if(hasMissingSection){
-      ccCodes.forEach(code=>{ newCol['FWC-'+code]=1; });
-    }
-    teamIds.forEach(tid=>{
-      const hasMis=missing[tid]!==undefined;
-      const hasRep=repeated[tid]!==undefined;
-      const hasHv=have[tid]!==undefined;
-      if(!hasMis&&!hasRep&&!hasHv){
-        // Not mentioned: if there's a missing section, team is fully complete
-        if(hasMissingSection) for(let i=0;i<20;i++) newCol[tid+'-'+i]=1;
-        return;
-      }
-      for(let i=0;i<20;i++){
-        const num=i+1,sid=tid+'-'+i;
-        if((repeated[tid]||[]).includes(num)){ newCol[sid]=2; }
-        else if(hasHv&&(have[tid]||[]).includes(num)){ newCol[sid]=1; }
-        else if(hasMis&&(missing[tid]||[]).includes(num)){ /* missing=0 */ }
-        else if(hasMis){ newCol[sid]=1; }
-      }
-    });
-
-    // Load into target user
-    cols[targetUserId]=newCol;
-    save();
-    renderAll();
-    if(room) saveToFirebase();
-
-    const count=Object.keys(newCol).length;
-    document.getElementById('importResult').innerHTML=
-      '✅ ¡Listo! Se cargaron <strong>'+count+' estampas</strong> de Figuritas como tu colección. Ya puedes seguir desde aquí.';
-  }catch(err){
-    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
-    console.error(err);
-  }
-}
-
-
-function procesarImport(jsonStr){
-  try{
-      const data=JSON.parse(jsonStr);
+function importarColeccion(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
       if(!data.usuario||!data.coleccion) throw new Error('Formato inválido');
 
       // Build cols entry for this visitor
@@ -1308,26 +872,17 @@ function procesarImport(jsonStr){
       else visitantes.push(vis);
       localStorage.setItem('p26vis',JSON.stringify(visitantes));
 
-      // Also save to Firebase so visitor data persists in the room
-      if(room) saveToFirebase();
-
       document.getElementById('importResult').innerHTML=
-        '✅ <strong>'+data.usuario+'</strong> importado correctamente. Ve a Intercambios para ver el cotejo.';
+        '✅ <strong>'+data.usuario+'</strong> importado correctamente ('+data.fecha+', modo: '+modo+'). Ve a la pestaña Intercambios para ver el cotejo.';
       document.getElementById('importFile').value='';
       // Refresh family/trades if open
       const activeTab=document.querySelector('.tab.active');
       if(activeTab?.textContent.includes('Familia')) renderFamily();
       if(activeTab?.textContent.includes('Intercambio')) renderTrades();
-  }catch(err){
-    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
-  }
-}
-
-function importarColeccion(event){
-  const file=event.target.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>procesarImport(e.target.result);
+    }catch(err){
+      document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error al leer el archivo: '+err.message+'</span>';
+    }
+  };
   reader.readAsText(file);
 }
 
@@ -1343,61 +898,164 @@ function allPeople(){
   return [...users,...visitantes.map(v=>({id:v.id,name:v.name,color:v.color||'#9B59B6',isVisitor:true,modo:v.modo}))];
 }
 
-// ═══ INIT ═══════════════════════════════════════════════
+// ═══ FIGURITAS IMPORT ════════════════════════════════════
+let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
 
-// Global error handler to show visible errors
-window.onerror = function(msg, src, line, col, err){
-  const d = document.createElement('div');
-  d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#E05757;color:#fff;padding:10px 14px;font-size:12px;z-index:9999;font-family:monospace';
-  d.textContent = '❌ JS Error: ' + msg + ' (line ' + line + ')';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(), 8000);
-  return false;
-};
-
-function openEditName(){
-  document.getElementById('moNameTitle').textContent='✏️ Cambiar mi nombre';
-  document.getElementById('moNameDesc').textContent='Este es el nombre con el que te ven los demás.';
-  document.getElementById('myNameInput').value=users[0]?.name||'';
-  document.getElementById('moNameCancel').style.display='inline-flex';
-  document.getElementById('moName').classList.add('open');
-  setTimeout(()=>document.getElementById('myNameInput').select(),100);
+function getColForId(uid){
+  if(cols[uid]) return cols[uid];
+  const vis=visitantes.find(v=>v.id===uid);
+  return vis?vis.col:{};
+}
+function allPeople(){
+  return [...users,...visitantes.map(v=>({id:v.id,name:v.name,color:v.color||'#9B59B6',isVisitor:true,modo:v.modo}))];
 }
 
-function saveMyName(){
-  const n=document.getElementById('myNameInput').value.trim();
-  if(!n)return;
-  users[0].name=n;
-  save();
-  cMo('moName');
-  renderAll();
+function importarDesdeTexto(){
+  const txt=document.getElementById('importTxt').value.trim();
+  if(!txt){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero el texto</span>';return;}
+  const looksLikeFiguritas=txt.includes('Figuritas')||txt.includes('Me faltan')||txt.includes('I need')||txt.includes('Swaps')||txt.includes('Repetidas');
+  if(looksLikeFiguritas) importarDesdeFiguritas(txt);
+  else procesarImportTexto(txt);
+  document.getElementById('importTxt').value='';
 }
 
-// Check if first time (name is still default "Yo")
-function checkFirstTime(){
-  // Only show if name is default AND no stickers recorded yet (truly first time)
-  const isDefault = !users[0]?.name || users[0].name==='Yo';
-  const hasData = Object.keys(cols[users[0]?.id]||{}).length > 0;
-  if(isDefault && !hasData){
-    document.getElementById('moNameCancel').style.display='none';
-    document.getElementById('moNameTitle').textContent='👋 ¿Cómo te llamas?';
-    document.getElementById('moNameDesc').textContent='Así te van a ver los demás en los intercambios.';
-    document.getElementById('myNameInput').value='';
-    document.getElementById('moName').classList.add('open');
-  } else {
-    document.getElementById('moName').classList.remove('open');
+function importarComoYo(){
+  const txt=document.getElementById('importTxt').value.trim();
+  if(!txt){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Pega primero tu lista de Figuritas</span>';return;}
+  const looksLikeFiguritas=txt.includes('Figuritas')||txt.includes('Me faltan')||txt.includes('I need')||txt.includes('Swaps')||txt.includes('Repetidas');
+  if(!looksLikeFiguritas){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Este botón es solo para listas de Figuritas App</span>';return;}
+  if(!confirm('¿Cargar esta lista como TU colección? Reemplazará tu avance actual.\n\nNombre actual: '+users[0].name)) return;
+  parseFiguritas(txt, curU, true);
+  document.getElementById('importTxt').value='';
+}
+
+function importarDesdeFiguritas(txt){
+  const name=prompt('¿Cómo se llama esta persona?','');
+  if(!name){document.getElementById('importResult').innerHTML='<span style="color:var(--red)">Cancelado</span>';return;}
+  parseFiguritas(txt, null, false, name);
+}
+
+function parseFiguritas(txt, targetUserId, asMe, visName){
+  try{
+    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];
+    const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];
+    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19'];
+    const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
+    const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
+      'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
+      'BEL','EGY','IRN','NZL','ESP','CPV','KSA','URU','FRA','SEN','IRQ','NOR',
+      'ARG','ALG','AUT','JOR','POR','COD','UZB','COL','ENG','CRO','GHA','PAN'];
+
+    const hasMissingSection=/Me faltan|I need|Missing/i.test(txt);
+    const hasRepeatedSection=/Repetidas|Swaps|Repeated/i.test(txt);
+
+    let mode='';
+    const missing={},repeated={},have={};
+    txt.split('\n').map(l=>l.trim()).filter(l=>l).forEach(line=>{
+      if(/^(Me faltan|I need|Missing)/i.test(line)){mode='missing';return;}
+      if(/^(Repetidas|Swaps|Repeated)/i.test(line)){mode='repeated';return;}
+      if(/^(Tengo|I have)/i.test(line)){mode='have';return;}
+      if(!mode||line.startsWith('http')||/^(Descarga|Download|Figuritas|Use |Usa )/i.test(line)) return;
+      const ci=line.indexOf(':'); if(ci<0) return;
+      const prefix=line.substring(0,ci).trim();
+      const nums=line.substring(ci+1).trim().split(',').map(n=>parseInt(n.trim())).filter(n=>!isNaN(n));
+      if(!nums.length) return;
+      let tk='';
+      if(/🏆/.test(prefix)) tk='FWC_TROPHY';
+      else if(/🌎/.test(prefix)) tk='FWC_WORLD';
+      else if(/📜/.test(prefix)) tk='FWC_HISTORY';
+      else if(/🥤/.test(prefix)||prefix.toUpperCase().startsWith('CC')) tk='CC';
+      else tk=prefix.split(' ')[0].toUpperCase();
+      if(mode==='missing') missing[tk]=[...(missing[tk]||[]),...nums];
+      else if(mode==='repeated') repeated[tk]=[...(repeated[tk]||[]),...nums];
+      else if(mode==='have') have[tk]=[...(have[tk]||[]),...nums];
+    });
+
+    const vcol={};
+    // FWC specials
+    [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([k,arr])=>{
+      const hasMis=k in missing, hasRep=k in repeated, hasHv=k in have;
+      if(!hasMis&&!hasRep&&!hasHv){if(hasMissingSection) arr.forEach(c=>vcol['FWC-'+c]=1); return;}
+      arr.forEach((code,i)=>{
+        const n=i+1;
+        if((repeated[k]||[]).includes(n)) vcol['FWC-'+code]=2;
+        else if(hasHv&&(have[k]||[]).includes(n)) vcol['FWC-'+code]=1;
+        else if(hasMis&&(missing[k]||[]).includes(n)) {}
+        else if(hasMis) vcol['FWC-'+code]=1;
+      });
+    });
+    // CC
+    if('CC' in missing||'CC' in repeated||'CC' in have){
+      ccCodes.forEach((code,i)=>{
+        const n=i+1;
+        if((repeated['CC']||[]).includes(n)) vcol['FWC-'+code]=2;
+        else if(('CC' in have)&&(have['CC']||[]).includes(n)) vcol['FWC-'+code]=1;
+        else if(('CC' in missing)&&(missing['CC']||[]).includes(n)) {}
+        else if('CC' in missing) vcol['FWC-'+code]=1;
+      });
+    } else if(hasMissingSection){
+      ccCodes.forEach(code=>{ vcol['FWC-'+code]=1; });
+    }
+    // Teams
+    teamIds.forEach(tid=>{
+      const hasMis=tid in missing, hasRep=tid in repeated, hasHv=tid in have;
+      if(!hasMis&&!hasRep&&!hasHv){
+        if(hasMissingSection) for(let i=0;i<20;i++) vcol[tid+'-'+i]=1;
+        return;
+      }
+      for(let i=0;i<20;i++){
+        const n=i+1, sid=tid+'-'+i;
+        if((repeated[tid]||[]).includes(n)) vcol[sid]=2;
+        else if(hasHv&&(have[tid]||[]).includes(n)) vcol[sid]=1;
+        else if(hasMis&&(missing[tid]||[]).includes(n)) {}
+        else if(hasMis) vcol[sid]=1;
+      }
+    });
+
+    if(asMe){
+      cols[targetUserId]=vcol;
+      save();
+      renderAll();
+      document.getElementById('importResult').innerHTML='✅ Colección cargada. '+Object.keys(vcol).length+' estampas importadas.';
+    } else {
+      const id='vis_'+visName.replace(/ +/g,'_');
+      const vis={id,name:visName,color:'#9B59B6',fecha:new Date().toLocaleDateString('es-MX'),modo:'todo',col:vcol};
+      const ei=visitantes.findIndex(v=>v.id===id);
+      if(ei>=0) visitantes[ei]=vis; else visitantes.push(vis);
+      localStorage.setItem('p26vis',JSON.stringify(visitantes));
+      document.getElementById('importResult').innerHTML='✅ '+visName+' importado. Ve a Intercambios.';
+    }
+  }catch(err){
+    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
   }
 }
 
-renderAll();renderSyncUI();
-checkFirstTime();
-// Load Firebase dynamically then connect to room
-initFirebase().then(()=>{
-  if(room){ loadFromFirebase(room); }
-  else { setSS('','Sin sala'); }
-});
+function procesarImportTexto(txt){
+  try{
+    const data=JSON.parse(txt);
+    if(!data.usuario||!data.coleccion) throw new Error('Formato inválido');
+    const vcol={};
+    Object.entries(data.coleccion).forEach(([tid,tdata])=>{
+      Object.entries(tdata.estampas||{}).forEach(([num,v])=>{
+        const idx=parseInt(num)-1;
+        if(tid==='FWC') vcol['FWC-'+num]=v;
+        else vcol[tid+'-'+idx]=v;
+      });
+    });
+    const id='vis_'+data.usuario.replace(/ +/g,'_');
+    const vis={id,name:data.usuario,color:'#9B59B6',fecha:data.fecha,modo:data.modo||'todo',col:vcol};
+    const ei=visitantes.findIndex(v=>v.id===id);
+    if(ei>=0) visitantes[ei]=vis; else visitantes.push(vis);
+    localStorage.setItem('p26vis',JSON.stringify(visitantes));
+    document.getElementById('importResult').innerHTML='✅ '+data.usuario+' importado. Ve a Intercambios.';
+  }catch(err){
+    document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error: '+err.message+'</span>';
+  }
+}
+
+// ═══ INIT ═══════════════════════════════════════════════
+renderAll();renderSyncUI();if(room)syncNow();
 document.getElementById('nN').addEventListener('keydown',e=>{if(e.key==='Enter')addUser();});
-document.getElementById('myNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveMyName();});
 document.getElementById('moU').addEventListener('click',e=>{if(e.target===document.getElementById('moU'))cMo('moU');});
 </script>
 </body>
