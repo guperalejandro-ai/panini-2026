@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test</title></head>
+<body style="font-family:sans-serif;padding:20px">
+<h2 id="titulo">Cargando...</h2>
+<button onclick="document.getElementById('titulo').textContent='¡Funciona! '+new Date().toLocaleTimeString()" 
+style="padding:15px 30px;font-size:16px;background:#4A90D9;color:white;border:none;border-radius:8px">
+Toca aquí
+</button>
+<p id="info"></p>
+<script>
+document.getElementById('titulo').textContent = 'Página cargada ✅';
+document.getElementById('info').textContent = 'Safari: ' + navigator.userAgent.includes('Safari') + ' | JS: OK';
+</script>
+</body>
+</html>
