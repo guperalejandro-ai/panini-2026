@@ -585,17 +585,28 @@ function renderStickers(){
     if(v>=1){
       inner+='<div class="stk-rep-ctrl">';
       if(v>1){
-        inner+='<button class="stk-rep-btn minus" onclick="event.stopPropagation();repMinus(''+sid+'')">−</button>';
+        inner+='<button class="stk-rep-btn minus" data-sid="'+sid+'" data-action="minus">−</button>';
         inner+='<span class="stk-rep-count">x'+v+'</span>';
       } else {
-        inner+='<span></span>'; // spacer
+        inner+='<span></span>';
       }
-      inner+='<button class="stk-rep-btn plus" onclick="event.stopPropagation();repPlus(''+sid+'')">+</button>';
+      inner+='<button class="stk-rep-btn plus" data-sid="'+sid+'" data-action="plus">+</button>';
       inner+='</div>';
     }
     d.innerHTML=inner;
     // Toque principal: vacío→tengo→vacío
-    d.onclick=()=>toggleStk(sid);
+    d.onclick=(e)=>{
+      // Si el clic fue en un botón +/-, manejarlo aquí
+      const btn=e.target.closest('[data-action]');
+      if(btn){
+        e.stopPropagation();
+        const s=btn.dataset.sid;
+        if(btn.dataset.action==='plus') repPlus(s);
+        else repMinus(s);
+        return;
+      }
+      toggleStk(sid);
+    };
     grid.appendChild(d);
   });
   if(!grid.children.length)grid.innerHTML='<div class="emsg" style="grid-column:1/-1">Sin estampas en este filtro</div>';
