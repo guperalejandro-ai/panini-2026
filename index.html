@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Álbum Panini FIFA 2026 · Guperion Systems</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--blue:#4A90D9;--bdk:#2E6FAF;--blt:#A8CBF0;--bf:#EAF3FC;--gray:#6B7A8D;--glt:#F4F7FB;--text:#1C2B3A;--grn:#2EC49A;--org:#F5A623;--red:#E05757;--gold:#C9A227;--coca:#E8212B}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -623,7 +622,6 @@ function renderGlobalTrades(){
       +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">'
       +TEAMS.filter(t=>compact.m[t.id]).map(t=>'<span class="mb">'+t.flag+' '+t.name+' ('+compact.m[t.id].length+')</span>').join('')
       +'</div></div></div>';
-    try{new QRCode(document.getElementById('qrGlobalDiv'),{text:payload,width:160,height:160,colorDark:'#1C2B3A',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.L});}
     catch(e){document.getElementById('qrGlobalDiv').textContent='QR generado (lista grande)';}
   }
 
@@ -725,13 +723,12 @@ function renderQR(missing,team){
   const me=users.find(u=>u.id===curU);
   const nums=missing.map(sid=>parseInt(sid.split('-')[1])+1);
   const payload=JSON.stringify({u:me?.name||'?',t:team?.id,mis:nums});
-  area.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
-    +'<div><div id="qrDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
-    +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR de '+team?.name+' · Escanea para cotejar</div></div>'
+  const qrUrl2='https://api.qrserver.com/v1/create-qr-code/?size=140x140&data='+encodeURIComponent(payload);
+  area.innerHTML='<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">'
+    +'<div><img src="'+qrUrl2+'" width="140" height="140" style="border-radius:8px;border:1px solid #DCE8F5" loading="lazy">'
+    +'<div style="font-size:10px;color:var(--gray);margin-top:5px;max-width:140px;text-align:center">QR de '+team?.name+'</div></div>'
     +'<div style="flex:1;min-width:150px"><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:5px">Me faltan '+nums.length+' de '+team?.name+':</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:3px">'+nums.map(n=>'<span class="mb">#'+n+' '+team.s[n-1]+'</span>').join('')+'</div></div></div>';
-  try{new QRCode(document.getElementById('qrDiv'),{text:payload,width:150,height:150,colorDark:'#1C2B3A',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});}
-  catch(e){document.getElementById('qrDiv').innerHTML='<span style="font-size:10px;color:var(--gray)">Lista muy grande para QR</span>';}
 }
 
 // ═══ USERS ═══════════════════════════════════════════════
