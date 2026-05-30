@@ -292,7 +292,7 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 </div>
 
 <!-- FIRST TIME / EDIT NAME MODAL -->
-<div class="mo open" id="moName">
+<div class="mo" id="moName">
   <div class="md">
     <h3 id="moNameTitle">👋 ¿Cómo te llamas?</h3>
     <p style="font-size:11px;color:var(--gray);margin-bottom:12px" id="moNameDesc">Así te van a ver los demás en los intercambios.</p>
@@ -533,6 +533,8 @@ function loadFromFirebase(roomCode){
       document.getElementById('ls2').textContent=now;
       setSS('ok','En línea ✓');
       renderAll();
+      // Re-check if name modal should be dismissed now that we have data
+      if(document.getElementById('moName')?.classList.contains('open')) checkFirstTime();
     }
   }, err=>{
     console.error('Firebase listen error:',err);
@@ -1341,8 +1343,10 @@ function saveMyName(){
 
 // Check if first time (name is still default "Yo")
 function checkFirstTime(){
+  // Only show if name is default AND no stickers recorded yet (truly first time)
   const isDefault = !users[0]?.name || users[0].name==='Yo';
-  if(isDefault){
+  const hasData = Object.keys(cols[users[0]?.id]||{}).length > 0;
+  if(isDefault && !hasData){
     document.getElementById('moNameCancel').style.display='none';
     document.getElementById('moNameTitle').textContent='👋 ¿Cómo te llamas?';
     document.getElementById('moNameDesc').textContent='Así te van a ver los demás en los intercambios.';
