@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Álbum Panini FIFA 2026 · Guperion Systems</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--blue:#4A90D9;--bdk:#2E6FAF;--blt:#A8CBF0;--bf:#EAF3FC;--gray:#6B7A8D;--glt:#F4F7FB;--text:#1C2B3A;--grn:#2EC49A;--org:#F5A623;--red:#E05757;--gold:#C9A227;--coca:#E8212B}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Barlow',sans-serif;background:var(--glt);color:var(--text);min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--glt);color:var(--text);min-height:100vh}
 header{background:#fff;border-bottom:1px solid #DCE8F5;padding:8px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(74,144,217,.08)}
 .logo-img{height:44px;width:auto}
 .hdiv{width:1px;height:36px;background:var(--blt);margin:0 6px}
@@ -19,12 +19,12 @@ header{background:#fff;border-bottom:1px solid #DCE8F5;padding:8px 18px;display:
 .sd{width:7px;height:7px;border-radius:50%;background:#ccc;transition:.3s}
 .sd.ok{background:var(--grn)}.sd.busy{background:var(--org);animation:p .8s infinite}
 @keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
-.ub2{background:rgba(0,0,0,.2);color:rgba(255,255,255,.9);padding:3px 10px;border-radius:16px;font-size:11px;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.ub2{background:rgba(0,0,0,.2);color:rgba(255,255,255,.9);padding:3px 10px;border-radius:16px;font-size:11px;letter-spacing:1px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700}
 .ubar{background:var(--blue);padding:7px 18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ubar span{color:rgba(255,255,255,.7);font-size:11px}
-.ubtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 13px;border-radius:16px;cursor:pointer;font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;transition:.15s}
+.ubtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 13px;border-radius:16px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:600;transition:.15s}
 .ubtn:hover{background:rgba(255,255,255,.25)}.ubtn.active{background:#fff;color:var(--blue)}
-.uadd{background:transparent;border:1px dashed rgba(255,255,255,.5);color:rgba(255,255,255,.7);padding:4px 11px;border-radius:16px;cursor:pointer;font-size:11px;font-family:'Barlow',sans-serif;transition:.15s}
+.uadd{background:transparent;border:1px dashed rgba(255,255,255,.5);color:rgba(255,255,255,.7);padding:4px 11px;border-radius:16px;cursor:pointer;font-size:11px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:.15s}
 .uadd:hover{border-color:#fff;color:#fff}
 main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template-columns:255px 1fr;gap:13px}
 @media(max-width:750px){main{grid-template-columns:1fr}}
@@ -35,7 +35,7 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 .srow{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}
 .sbox{background:#fff;border-radius:8px;padding:10px 5px;text-align:center;box-shadow:0 1px 4px rgba(74,144,217,.08);border-top:3px solid var(--blue)}
 .sbox.g{border-top-color:var(--grn)}.sbox.o{border-top-color:var(--org)}.sbox.r{border-top-color:var(--red)}.sbox.p{border-top-color:#9B59B6}
-.snum{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.snum{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:26px;font-weight:800;line-height:1}
 .slbl{font-size:8px;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
 .pw{background:#fff;border-radius:8px;padding:10px 13px;margin-bottom:12px;box-shadow:0 1px 4px rgba(74,144,217,.08)}
 .pb{height:7px;background:var(--bf);border-radius:4px;overflow:hidden;margin:4px 0 3px}
@@ -53,11 +53,11 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 .cn2{font-size:8px;color:var(--gray)}
 .brep{background:var(--org);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:6px;white-space:nowrap}
 .tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
-.tab{padding:6px 14px;border-radius:7px;border:1px solid #DCE8F5;background:#fff;font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;color:var(--gray);cursor:pointer;transition:.15s}
+.tab{padding:6px 14px;border-radius:7px;border:1px solid #DCE8F5;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:600;color:var(--gray);cursor:pointer;transition:.15s}
 .tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .sec{display:none}.sec.active{display:block}
 .ft{display:flex;gap:4px;flex-wrap:wrap}
-.ftab{padding:3px 11px;border-radius:13px;border:1px solid var(--blt);background:#fff;color:var(--gray);font-family:'Barlow',sans-serif;font-size:10px;cursor:pointer;transition:.14s}
+.ftab{padding:3px 11px;border-radius:13px;border:1px solid var(--blt);background:#fff;color:var(--gray);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;cursor:pointer;transition:.14s}
 .ftab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .leg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .li{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--gray)}
@@ -70,7 +70,7 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 .stk.rep{background:#FFF7E8;border-color:var(--org)}
 .stk.foil{border-color:var(--gold)!important}.stk.foil:not(.have):not(.rep){background:#FFFBEA}
 .stk.coca{border-color:var(--coca)!important}.stk.coca:not(.have):not(.rep){background:#FFF0F0}
-.sc{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--gray);line-height:1}
+.sc{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;font-weight:800;color:var(--gray);line-height:1}
 .stk.have .sc{color:var(--bdk)}.stk.rep .sc{color:#C07800}.stk.foil .sc{color:#8B6914}
 .spn{font-size:7px;font-weight:400;text-align:center;line-height:1.2;margin-top:2px;color:var(--gray);overflow:hidden;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .stk.have .spn{color:var(--bdk)}.stk.rep .spn{color:#C07800}
@@ -95,12 +95,12 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 .mo.open{display:flex}
 .md{background:#fff;border-radius:12px;padding:22px;width:90%;max-width:370px;box-shadow:0 8px 40px rgba(74,144,217,.22)}
 .md h3{font-size:13px;font-weight:700;margin-bottom:11px;color:var(--bdk)}
-.mi{width:100%;padding:8px 11px;border:1px solid #DCE8F5;border-radius:7px;font-family:'Barlow',sans-serif;font-size:13px;margin-bottom:8px;color:var(--text);outline:none;transition:.2s}
+.mi{width:100%;padding:8px 11px;border:1px solid #DCE8F5;border-radius:7px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;margin-bottom:8px;color:var(--text);outline:none;transition:.2s}
 .mi:focus{border-color:var(--blue)}
 .mbtns{display:flex;gap:7px;justify-content:flex-end;margin-top:3px}
-.btnp{background:var(--blue);color:#fff;border:none;padding:7px 16px;border-radius:7px;font-family:'Barlow',sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.btnp{background:var(--blue);color:#fff;border:none;padding:7px 16px;border-radius:7px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 .btnp:hover{background:var(--bdk)}
-.btns{background:#fff;color:var(--gray);border:1px solid #DCE8F5;padding:7px 13px;border-radius:7px;font-family:'Barlow',sans-serif;font-size:12px;cursor:pointer}
+.btns{background:#fff;color:var(--gray);border:1px solid #DCE8F5;padding:7px 13px;border-radius:7px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;cursor:pointer}
 .chip{font-size:9px;background:var(--bf);color:var(--blue);padding:2px 7px;border-radius:8px;font-weight:600}
 .emsg{text-align:center;color:var(--gray);font-size:11px;padding:22px 0;opacity:.7}
 .ibox{background:var(--bf);border:1px solid var(--blt);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--bdk);margin-bottom:11px;line-height:1.5}
@@ -269,7 +269,7 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
         <div id="ri" style="display:none">
           <div style="background:var(--bf);border-radius:8px;padding:12px;border:1px solid var(--blt)">
             <div style="font-size:10px;color:var(--gray);margin-bottom:4px">Comparte este código con la familia:</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;color:var(--blue);letter-spacing:4px" id="bc"></div>
+            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:34px;font-weight:900;color:var(--blue);letter-spacing:4px" id="bc"></div>
             <div style="font-size:10px;color:var(--gray);margin-top:5px">Última sync: <span id="ls2">Nunca</span></div>
           </div>
           <div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">
@@ -439,7 +439,7 @@ const TOTAL_TEAM=960, TOTAL_FOIL=20, TOTAL_COCA=14;
 // ═══ STATE ═══════════════════════════════════════════════
 let users=JSON.parse(localStorage.getItem('p26u')||'null')||[{id:'yo',name:'Yo',color:'#4A90D9'}];
 let cols=JSON.parse(localStorage.getItem('p26c')||'{}');
-let curU=users[0].id,selId=null,curF='all',curG='TODOS',room=localStorage.getItem('p26r')||null;
+let curU=users[0].id,selId=null,curF='all',curG='A',room=localStorage.getItem('p26r')||null;
 const COLORS=['#4A90D9','#2EC49A','#F5A623','#E05757','#9B59B6','#E67E22','#1ABC9C','#E91E63'];
 function save(){localStorage.setItem('p26u',JSON.stringify(users));localStorage.setItem('p26c',JSON.stringify(cols));}
 function col(uid){if(!cols[uid])cols[uid]={};return cols[uid];}
@@ -901,14 +901,7 @@ function allPeople(){
 // ═══ FIGURITAS IMPORT ════════════════════════════════════
 let visitantes=JSON.parse(localStorage.getItem('p26vis')||'[]');
 
-function getColForId(uid){
-  if(cols[uid]) return cols[uid];
-  const vis=visitantes.find(v=>v.id===uid);
-  return vis?vis.col:{};
-}
-function allPeople(){
-  return [...users,...visitantes.map(v=>({id:v.id,name:v.name,color:v.color||'#9B59B6',isVisitor:true,modo:v.modo}))];
-}
+
 
 function importarDesdeTexto(){
   const txt=document.getElementById('importTxt').value.trim();
