@@ -1005,6 +1005,8 @@ function importarDesdeFiguritas(txt){
   try{
     // Parse into a temp collection object
     const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
+    const hasMissingSection=txt.includes('Me faltan')||txt.includes('Missing')||txt.includes('I need')||txt.includes("I'm missing");
+    const hasRepeatedSection=txt.includes('Repetidas')||txt.includes('Repeated')||txt.includes('Swaps');
     const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];          // 5 estampas: 00-4
     const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];              // 4 estampas: 5-8
     const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19']; // 11 estampas: 9-19
@@ -1130,6 +1132,8 @@ function importarComoYo(){
 function parseFiguritasIntoUser(txt, targetUserId){
   try{
     const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
+    const hasMissingSection=txt.includes('Me faltan')||txt.includes('Missing')||txt.includes('I need')||txt.includes("I'm missing");
+    const hasRepeatedSection=txt.includes('Repetidas')||txt.includes('Repeated')||txt.includes('Swaps');
     const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];          // 5 estampas: 00-4
     const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];              // 4 estampas: 5-8
     const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19']; // 11 estampas: 9-19
