@@ -1005,9 +1005,9 @@ function importarDesdeFiguritas(txt){
   try{
     // Parse into a temp collection object
     const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
-    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4','FWC5'];
-    const fwcWorld=['FWC6','FWC7','FWC8'];
-    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19'];
+    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];          // 5 estampas: 00-4
+    const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];              // 4 estampas: 5-8
+    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19']; // 11 estampas: 9-19
     const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
     const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
       'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
@@ -1075,7 +1075,12 @@ function importarDesdeFiguritas(txt){
       const hasMissing=missing[tid]!==undefined;
       const hasRepeated=repeated[tid]!==undefined;
       const hasHave=have[tid]!==undefined;
-      if(!hasMissing&&!hasRepeated&&!hasHave) return;
+      if(!hasMissing&&!hasRepeated&&!hasHave){
+        if(hasMissingSection){
+          for(let i=0;i<20;i++) vcol[tid+'-'+i]=1;
+        }
+        return;
+      }
       for(let i=0;i<20;i++){
         const n=i+1,sid=tid+'-'+i;
         if((repeated[tid]||[]).includes(n)){ vcol[sid]=2; }
@@ -1125,9 +1130,9 @@ function importarComoYo(){
 function parseFiguritasIntoUser(txt, targetUserId){
   try{
     const lines=txt.split('\n').map(l=>l.trim()).filter(l=>l);
-    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4','FWC5'];
-    const fwcWorld=['FWC6','FWC7','FWC8'];
-    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19'];
+    const fwcTrophy=['00','FWC1','FWC2','FWC3','FWC4'];          // 5 estampas: 00-4
+    const fwcWorld=['FWC5','FWC6','FWC7','FWC8'];              // 4 estampas: 5-8
+    const fwcHistory=['FWC9','FWC10','FWC11','FWC12','FWC13','FWC14','FWC15','FWC16','FWC17','FWC18','FWC19']; // 11 estampas: 9-19
     const ccCodes=['CC1','CC2','CC3','CC4','CC5','CC6','CC7','CC8','CC9','CC10','CC11','CC12','CC13','CC14'];
     const teamIds=['MEX','RSA','KOR','CZE','CAN','BIH','QAT','SUI','BRA','MAR','HAI','SCO',
       'USA','PAR','AUS','TUR','GER','CUW','CIV','ECU','NED','JPN','SWE','TUN',
@@ -1168,7 +1173,10 @@ function parseFiguritasIntoUser(txt, targetUserId){
 
     [['FWC_TROPHY',fwcTrophy],['FWC_WORLD',fwcWorld],['FWC_HISTORY',fwcHistory]].forEach(([key,arr])=>{
       const hasMis=missing[key]!==undefined,hasRep=repeated[key]!==undefined,hasHv=have[key]!==undefined;
-      if(!hasMis&&!hasRep&&!hasHv) return;
+      if(!hasMis&&!hasRep&&!hasHv){
+        if(hasMissingSection) arr.forEach(code=>setSpecial(code,1));
+        return;
+      }
       arr.forEach((code,i)=>{
         const num=i+1;
         if((repeated[key]||[]).includes(num)) setSpecial(code,2);
@@ -1177,6 +1185,7 @@ function parseFiguritasIntoUser(txt, targetUserId){
         else if(hasMis) setSpecial(code,1);
       });
     });
+    // CC: if not mentioned at all and hasMissingSection, assume complete
     if(missing['CC']!==undefined||repeated['CC']!==undefined||have['CC']!==undefined){
       ccCodes.forEach((code,i)=>{
         const num=i+1;
@@ -1185,19 +1194,24 @@ function parseFiguritasIntoUser(txt, targetUserId){
         else if(missing['CC']!==undefined&&(missing['CC']||[]).includes(num)) {}
         else if(missing['CC']!==undefined) newCol['FWC-'+code]=1;
       });
+    } else if(hasMissingSection){
+      ccCodes.forEach(code=>{ newCol['FWC-'+code]=1; });
     }
     teamIds.forEach(tid=>{
       const hasMis=missing[tid]!==undefined;
       const hasRep=repeated[tid]!==undefined;
       const hasHv=have[tid]!==undefined;
-      if(!hasMis&&!hasRep&&!hasHv) return; // not mentioned = zero stickers
+      if(!hasMis&&!hasRep&&!hasHv){
+        // Not mentioned: if there's a missing section, team is fully complete
+        if(hasMissingSection) for(let i=0;i<20;i++) newCol[tid+'-'+i]=1;
+        return;
+      }
       for(let i=0;i<20;i++){
         const num=i+1,sid=tid+'-'+i;
         if((repeated[tid]||[]).includes(num)){ newCol[sid]=2; }
         else if(hasHv&&(have[tid]||[]).includes(num)){ newCol[sid]=1; }
         else if(hasMis&&(missing[tid]||[]).includes(num)){ /* missing=0 */ }
-        else if(hasMis){ newCol[sid]=1; } // not in missing = have
-        // else: only repeated mentioned, rest are 0
+        else if(hasMis){ newCol[sid]=1; }
       }
     });
 
