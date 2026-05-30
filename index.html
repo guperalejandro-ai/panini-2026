@@ -603,7 +603,7 @@ function renderGlobalTrades(){
     qrArea.innerHTML='<div class="emsg">🏆 ¡Álbum completo!</div>';
   } else {
     // Compact payload: {u: name, m: {teamId: [idx,...], ...}}
-    const compact={u:me?.name||'?',m:{}};
+    const compact={u:(me&&me.name?me.name:'?')||'?',m:{}};
     allMissing.forEach(({tid,idx})=>{if(!compact.m[tid])compact.m[tid]=[];compact.m[tid].push(idx+1);});
     const payload=JSON.stringify(compact);
     qrArea.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
@@ -615,8 +615,6 @@ function renderGlobalTrades(){
       +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">'
       +TEAMS.filter(t=>compact.m[t.id]).map(t=>'<span class="mb">'+t.flag+' '+t.name+' ('+compact.m[t.id].length+')</span>').join('')
       +'</div></div></div>';
-    
-    catch(e){}
   }
 
   // ── Who helps me most
@@ -716,11 +714,11 @@ function renderQR(missing,team){
   if(!missing||!missing.length){area.innerHTML='<div class="emsg">Sin estampas faltantes en este país</div>';return;}
   const me=users.find(u=>u.id===curU);
   const nums=missing.map(sid=>parseInt(sid.split('-')[1])+1);
-  const payload=JSON.stringify({u:me?.name||'?',t:team?.id,mis:nums});
+  const payload=JSON.stringify({u:(me&&me.name?me.name:'?')||'?',t:(team?team.id:null),mis:nums});
   area.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
     +'<div><div id="qrDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
-    +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR de '+team?.name+' · Escanea para cotejar</div></div>'
-    +'<div style="flex:1;min-width:150px"><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:5px">Me faltan '+nums.length+' de '+team?.name+':</div>'
+    +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR de '+(team?team.name:'?')+' · Escanea para cotejar</div></div>'
+    +'<div style="flex:1;min-width:150px"><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:5px">Me faltan '+nums.length+' de '+(team?team.name:'?')+':</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:3px">'+nums.map(n=>'<span class="mb">#'+n+' '+team.s[n-1]+'</span>').join('')+'</div></div></div>';
   
   catch(e){}
@@ -745,8 +743,8 @@ async function syncNow(){
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
     system:'Servidor de sync Panini. Recibe {room,users,cols}. Responde SOLO JSON {"users":[...],"cols":{...}} fusionando: cols=MAX entre entrada y datos previos de esa sala; users=unión sin duplicar ids. Solo JSON, sin backticks.',
     messages:[{role:'user',content:JSON.stringify({room,users,cols})}]})});
-    const data=await res.json();const txt=data.content?.find(b=>b.type==='text')?.text||'';
-    const merged=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const data=await res.json();const txt=(data.content&&data.content.find(function(b){return b.type==='text'})?data.content.find(function(b){return b.type==='text'}).text:'');
+    const merged=JSON.parse(txt.replace(/```json/g,'').replace(/```/g,'').trim());
     if(merged.users)users=merged.users;if(merged.cols)cols=merged.cols;
     save();document.getElementById('ls2').textContent=new Date().toLocaleTimeString('es-MX');
     setSS('ok','Sincronizado ✓');renderAll();
@@ -762,7 +760,7 @@ function exportarColeccion(modo){
   const data={
     version:1,
     app:'Panini FIFA 2026 · Guperion Systems',
-    usuario:me?.name||'?',
+    usuario:(me&&me.name?me.name:'?')||'?',
     fecha:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}),
     modo,
     coleccion:{}
@@ -803,7 +801,7 @@ function exportarColeccion(modo){
   const a=document.createElement('a');
   const modoLabel=modo==='todo'?'coleccion':modo==='faltantes'?'faltantes':'repetidas';
   a.href=url;
-  a.download='panini2026_'+(me?.name||'yo').replace(/\s+/g,'_')+'_'+modoLabel+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.download='panini2026_'+((me&&me.name?me.name:'?')||'yo').replace(/\s+/g,'_')+'_'+modoLabel+'_'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -869,8 +867,8 @@ function importarColeccion(event){
       document.getElementById('importFile').value='';
       // Refresh family/trades if open
       const activeTab=document.querySelector('.tab.active');
-      if(activeTab?.textContent.includes('Familia')) renderFamily();
-      if(activeTab?.textContent.includes('Intercambio')) renderTrades();
+      if((activeTab&&activeTab.textContent.includes('Familia'))) renderFamily();
+      if((activeTab&&activeTab.textContent.includes('Intercambio'))) renderTrades();
     }catch(err){
       document.getElementById('importResult').innerHTML='<span style="color:var(--red)">❌ Error al leer el archivo: '+err.message+'</span>';
     }
