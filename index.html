@@ -6,8 +6,6 @@
 <title>Álbum Panini FIFA 2026 · Guperion Systems</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{--blue:#4A90D9;--bdk:#2E6FAF;--blt:#A8CBF0;--bf:#EAF3FC;--gray:#6B7A8D;--glt:#F4F7FB;--text:#1C2B3A;--grn:#2EC49A;--org:#F5A623;--red:#E05757;--gold:#C9A227;--coca:#E8212B}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -460,12 +458,29 @@ const firebaseConfig = {
   appId: "1:694323001120:web:3b59061862987de23f0945"
 };
 let db = null;
-try {
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-  console.log('Firebase OK');
-} catch(e) {
-  console.error('Firebase init failed:', e);
+
+function initFirebase(){
+  return new Promise((resolve)=>{
+    // Load Firebase app script
+    const s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
+    s1.onload = ()=>{
+      const s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js';
+      s2.onload = ()=>{
+        try{
+          if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+          db = firebase.firestore();
+          console.log('Firebase loaded OK');
+        } catch(e){ console.error('Firebase init error:',e); }
+        resolve();
+      };
+      s2.onerror = ()=>{ console.warn('Firestore script failed'); resolve(); };
+      document.head.appendChild(s2);
+    };
+    s1.onerror = ()=>{ console.warn('Firebase app script failed'); resolve(); };
+    document.head.appendChild(s1);
+  });
 }
 
 // ═══ STATE ═══════════════════════════════════════════════
@@ -1376,8 +1391,11 @@ function checkFirstTime(){
 
 renderAll();renderSyncUI();
 checkFirstTime();
-if(room){ loadFromFirebase(room); }
-else { setSS('','Sin sala'); }
+// Load Firebase dynamically then connect to room
+initFirebase().then(()=>{
+  if(room){ loadFromFirebase(room); }
+  else { setSS('','Sin sala'); }
+});
 document.getElementById('nN').addEventListener('keydown',e=>{if(e.key==='Enter')addUser();});
 document.getElementById('myNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveMyName();});
 document.getElementById('moU').addEventListener('click',e=>{if(e.target===document.getElementById('moU'))cMo('moU');});
