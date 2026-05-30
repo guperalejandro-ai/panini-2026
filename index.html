@@ -459,8 +459,14 @@ const firebaseConfig = {
   messagingSenderId: "694323001120",
   appId: "1:694323001120:web:3b59061862987de23f0945"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+let db = null;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  console.log('Firebase OK');
+} catch(e) {
+  console.error('Firebase init failed:', e);
+}
 
 // ═══ STATE ═══════════════════════════════════════════════
 let users=JSON.parse(localStorage.getItem('p26u')||'null')||[{id:'yo',name:'Yo',color:'#4A90D9'}];
@@ -484,7 +490,7 @@ let fbSaveTimer=null;
 function saveToFirebase(){
   clearTimeout(fbSaveTimer);
   fbSaveTimer=setTimeout(()=>{
-    if(!room) return;
+    if(!room||!db) return;
     setSS('busy','Guardando...');
     db.collection('salas').doc(room).set({
       users: JSON.stringify(users),
@@ -504,6 +510,7 @@ function loadFromFirebase(roomCode){
   // Unsubscribe previous listener
   if(fbUnsubscribe) fbUnsubscribe();
   setSS('busy','Conectando...');
+  if(!db){ setSS('','Firebase no disponible'); return; }
   fbUnsubscribe = db.collection('salas').doc(roomCode).onSnapshot(doc=>{
     if(doc.exists){
       const data=doc.data();
@@ -1322,6 +1329,16 @@ function allPeople(){
 }
 
 // ═══ INIT ═══════════════════════════════════════════════
+
+// Global error handler to show visible errors
+window.onerror = function(msg, src, line, col, err){
+  const d = document.createElement('div');
+  d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#E05757;color:#fff;padding:10px 14px;font-size:12px;z-index:9999;font-family:monospace';
+  d.textContent = '❌ JS Error: ' + msg + ' (line ' + line + ')';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 8000);
+  return false;
+};
 
 function openEditName(){
   document.getElementById('moNameTitle').textContent='✏️ Cambiar mi nombre';
