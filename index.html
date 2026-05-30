@@ -104,6 +104,21 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 .ibox{background:var(--bf);border:1px solid var(--blt);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--bdk);margin-bottom:11px;line-height:1.5}
 .ibox strong{display:block;margin-bottom:2px;font-size:12px}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#C5D9EF;border-radius:3px}
+.stk-rep-ctrl{position:absolute;bottom:-1px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 2px}
+.stk-rep-btn{width:16px;height:16px;border-radius:50%;border:none;font-size:10px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0}
+.stk-rep-btn.minus{background:var(--red);color:#fff}
+.stk-rep-btn.plus{background:var(--grn);color:#fff}
+.stk-rep-count{font-size:9px;font-weight:900;color:var(--org);background:#fff;border-radius:4px;padding:0 3px;border:1px solid var(--org)}
+.ebtn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7);font-size:12px;padding:2px 4px;border-radius:4px;transition:.15s;flex-shrink:0}
+.ebtn:hover{color:#fff;background:rgba(255,255,255,.2)}
+.first-run{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue),var(--bdk));z-index:300;display:flex;align-items:center;justify-content:center}
+.fr-box{background:#fff;border-radius:16px;padding:28px 24px;width:90%;max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.25);text-align:center}
+.fr-box h2{font-size:18px;font-weight:800;color:var(--bdk);margin-bottom:6px}
+.fr-box p{font-size:12px;color:var(--gray);margin-bottom:18px;line-height:1.5}
+.fr-input{width:100%;padding:12px 14px;border:2px solid #DCE8F5;border-radius:10px;font-size:15px;font-family:system-ui,sans-serif;outline:none;transition:.2s;text-align:center}
+.fr-input:focus{border-color:var(--blue)}
+.fr-btn{width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:system-ui,sans-serif;cursor:pointer;margin-top:10px;transition:.15s}
+.fr-btn:hover{background:var(--bdk)}
 </style>
 </head>
 <body>
@@ -115,7 +130,8 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
 </header>
 <div class="ubar">
   <span>Ver:</span>
-  <div id="ubtns" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+  <div id="ubtns" style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"></div>
+  <button class="ebtn" id="editBtn" onclick="openEditName()" title="Editar mi nombre">✏️</button>
   <button class="uadd" onclick="openAddUser()">+ Agregar</button>
   <div class="ub2" id="rdisp"></div>
 </div>
@@ -290,6 +306,27 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
     <div id="whoList" style="display:flex;flex-direction:column;gap:7px"></div>
     <div style="border-top:1px solid var(--bf);margin-top:12px;padding-top:10px">
       <button class="btns" style="width:100%;font-size:11px" onclick="cMo('moWho');openAddUser()">+ Soy alguien nuevo</button>
+    </div>
+  </div>
+</div>
+<!-- First-run: pedir nombre -->
+<div class="first-run" id="firstRun" style="display:none">
+  <div class="fr-box">
+    <div style="font-size:40px;margin-bottom:8px">⚽</div>
+    <h2>¡Bienvenido!</h2>
+    <p>Álbum Panini FIFA World Cup 2026<br>¿Cómo te llamas? Así sabremos quién está llenando el álbum.</p>
+    <input class="fr-input" id="frName" type="text" placeholder="Tu nombre" maxlength="20" autocomplete="off">
+    <button class="fr-btn" id="frBtn" onclick="firstRunSave()">Entrar 🚀</button>
+  </div>
+</div>
+<!-- Modal: editar mi nombre -->
+<div class="mo" id="moEdit">
+  <div class="md" style="max-width:320px">
+    <h3>✏️ Editar mi nombre</h3>
+    <input class="mi" type="text" id="editName" placeholder="Tu nombre" maxlength="20">
+    <div class="mbtns">
+      <button class="btns" onclick="cMo('moEdit')">Cancelar</button>
+      <button class="btnp" onclick="saveEditName()">Guardar</button>
     </div>
   </div>
 </div>
@@ -531,23 +568,59 @@ function renderStickers(){
   title.textContent=item.flag+' '+item.name+(item.page?' — pág. '+item.page:'');
   const c=col(curU),list=stks(item);grid.innerHTML='';
   list.forEach(({sid,name,foil,coca},idx)=>{
-    const v=c[sid]||0,state=v===0?'missing':v===1?'have':'rep';
+    const v=c[sid]||0;
+    const state=v===0?'missing':v===1?'have':'rep';
     if(curF==='missing'&&state!=='missing')return;
     if(curF==='have'&&state!=='have')return;
     if(curF==='rep'&&state!=='rep')return;
     const d=document.createElement('div');
-    let cls='stk';if(foil)cls+=' foil';if(coca)cls+=' coca';if(state==='have')cls+=' have';if(state==='rep')cls+=' rep';
+    let cls='stk';if(foil)cls+=' foil';if(coca)cls+=' coca';
+    if(state==='have')cls+=' have';if(state==='rep')cls+=' rep';
     const num=selId==='FWC'?sid.replace('FWC-',''):(idx+1);
-    d.className=cls;d.title=name+' | Clic: marcar/quitar | Clic der: +repetida';
-    d.innerHTML=(foil?'<div class="fb">★</div>':'')+(coca?'<div class="ccb">🥤</div>':'')+'<div class="sc">'+num+'</div><div class="spn">'+name+'</div>'+(v>1?'<div class="rcnt">'+v+'</div>':'');
-    d.onclick=()=>toggleStk(sid);d.oncontextmenu=e=>{e.preventDefault();addRep(sid);};
+    d.className=cls;
+    // Contenido base
+    let inner=(foil?'<div class="fb">★</div>':'')+(coca?'<div class="ccb">🥤</div>':'');
+    inner+='<div class="sc">'+num+'</div><div class="spn">'+name+'</div>';
+    // Controles de repetidas (solo si tengo al menos 1)
+    if(v>=1){
+      inner+='<div class="stk-rep-ctrl">';
+      if(v>1){
+        inner+='<button class="stk-rep-btn minus" onclick="event.stopPropagation();repMinus(''+sid+'')">−</button>';
+        inner+='<span class="stk-rep-count">x'+v+'</span>';
+      } else {
+        inner+='<span></span>'; // spacer
+      }
+      inner+='<button class="stk-rep-btn plus" onclick="event.stopPropagation();repPlus(''+sid+'')">+</button>';
+      inner+='</div>';
+    }
+    d.innerHTML=inner;
+    // Toque principal: vacío→tengo→vacío
+    d.onclick=()=>toggleStk(sid);
     grid.appendChild(d);
   });
   if(!grid.children.length)grid.innerHTML='<div class="emsg" style="grid-column:1/-1">Sin estampas en este filtro</div>';
 }
 
-function toggleStk(sid){const c=col(curU),cur=c[sid]||0;if(cur===0)c[sid]=1;else if(cur===1)delete c[sid];else c[sid]=1;save();renderAll();if(room)debouncedSync();}
-function addRep(sid){const c=col(curU);c[sid]=(c[sid]||0)+1;if(c[sid]>9)c[sid]=9;save();renderAll();if(room)debouncedSync();}
+function toggleStk(sid){
+  const c=col(curU),cur=c[sid]||0;
+  if(cur===0) c[sid]=1;       // vacío → tengo
+  else if(cur===1) delete c[sid]; // tengo → vacío (si no hay repetidas)
+  else return; // si hay repetidas, el toque principal no hace nada (usar − para quitar)
+  save();renderAll();if(room)debouncedSync();
+}
+function repPlus(sid){
+  const c=col(curU);
+  c[sid]=(c[sid]||1)+1;
+  if(c[sid]>9)c[sid]=9;
+  save();renderAll();if(room)debouncedSync();
+}
+function repMinus(sid){
+  const c=col(curU),cur=c[sid]||0;
+  if(cur<=1){delete c[sid];}  // si solo tengo 1, quitar
+  else c[sid]=cur-1;
+  save();renderAll();if(room)debouncedSync();
+}
+function addRep(sid){repPlus(sid);}
 function setF(f,btn){curF=f;document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStickers();}
 function sTab(tab,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
@@ -561,32 +634,71 @@ function sTab(tab,btn){
 // ═══ FAMILY ═══════════════════════════════════════════════
 function renderFamily(){
   const g=document.getElementById('fgrid');g.innerHTML='';
-  const people=allPeople();
-  people.forEach(u=>{
-    const c=getColForId(u.id);
+  const myC=col(curU);
+  const me=users.find(u=>u.id===curU);
+
+  // ── Mi tarjeta (siempre primero)
+  if(me){
+    let hv=0,rep=0;
+    TEAMS.forEach(t=>t.s.forEach((_,i)=>{const v=myC[t.id+'-'+i]||0;if(v>=1)hv++;if(v>1)rep++;}));
+    const myReps=Object.entries(myC).filter(([,v])=>v>1);
+    const card=document.createElement('div');card.className='fc';
+    card.style.borderTop='3px solid var(--blue)';
+    card.innerHTML='<h4><div class="av" style="background:'+me.color+'">'+me.name.substring(0,2).toUpperCase()+'</div>'+me.name+' <span style="font-size:8px;background:var(--bf);color:var(--blue);padding:1px 5px;border-radius:5px;margin-left:2px">Tú</span></h4>'
+      +'<div class="fst">✅ Tiene: <strong>'+hv+'</strong> / '+TOTAL_TEAM+'</div>'
+      +'<div class="fst">❌ Faltan: <strong>'+(TOTAL_TEAM-hv)+'</strong></div>'
+      +'<div class="fst">🔁 Rep.: <strong>'+rep+'</strong></div>'
+      +'<div style="margin-top:5px;font-size:8px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Mis repetidas:</div>'
+      +'<div class="ubdg" id="ub-me"></div>';
+    g.appendChild(card);
+    const bd=card.querySelector('#ub-me');
+    if(!myReps.length) bd.innerHTML='<span style="font-size:8px;color:var(--gray)">Ninguna</span>';
+    else{
+      myReps.slice(0,10).forEach(([sid])=>{const sp=document.createElement('span');sp.className='ub rp';sp.textContent=sid;bd.appendChild(sp);});
+      if(myReps.length>10){const m=document.createElement('span');m.className='ub';m.textContent='+'+(myReps.length-10)+' más';bd.appendChild(m);}
+    }
+  }
+
+  // ── Tarjetas de otros (usuarios registrados excepto yo)
+  users.filter(u=>u.id!==curU).forEach(u=>{
+    const c=col(u.id);
     let hv=0,rep=0;
     TEAMS.forEach(t=>t.s.forEach((_,i)=>{const v=c[t.id+'-'+i]||0;if(v>=1)hv++;if(v>1)rep++;}));
-    const myC=col(curU);
-    // For visitors with faltantes mode: v=-1=missing; v=1=have
-    let canGive=[];
-    if(u.isVisitor&&u.modo==='faltantes'){
-      Object.entries(c).filter(([sid,v])=>v===-1&&(myC[sid]||0)>1).forEach(([sid])=>canGive.push([sid,1]));
-    } else {
-      canGive=Object.entries(c).filter(([sid,v])=>v>1&&(myC[sid]||0)===0);
-    }
+    const canGive=Object.entries(c).filter(([sid,v])=>v>1&&(myC[sid]||0)===0);
     const card=document.createElement('div');card.className='fc';
-    const badge=u.isVisitor?'<span style="font-size:8px;background:#9B59B6;color:#fff;padding:1px 5px;border-radius:5px;margin-left:4px">📂</span>':'';
-    card.innerHTML='<h4><div class="av" style="background:'+(u.color||'#4A90D9')+'">'+u.name.replace(' 📂','').substring(0,2).toUpperCase()+'</div>'+u.name.replace(' 📂','')+badge+'</h4>'
-      +(u.isVisitor?'':'<div class="fst">✅ Tiene: <strong>'+hv+'</strong> / '+TOTAL_TEAM+'</div>')
-      +(u.isVisitor?'':'<div class="fst">❌ Faltan: <strong>'+(TOTAL_TEAM-hv)+'</strong></div>')
+    card.innerHTML='<h4><div class="av" style="background:'+(u.color||'#4A90D9')+'">'+u.name.substring(0,2).toUpperCase()+'</div>'+u.name+'</h4>'
+      +'<div class="fst">✅ Tiene: <strong>'+hv+'</strong> / '+TOTAL_TEAM+'</div>'
+      +'<div class="fst">❌ Faltan: <strong>'+(TOTAL_TEAM-hv)+'</strong></div>'
       +'<div class="fst">🔁 Rep.: <strong>'+rep+'</strong></div>'
-      +'<div style="margin-top:5px;font-size:8px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.6px">'+(u.id!==curU?'Me puede dar ('+canGive.length+'):':'Mis repetidas:')+'</div>'
+      +'<div style="margin-top:5px;font-size:8px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Me puede dar ('+canGive.length+'):</div>'
       +'<div class="ubdg" id="ub-'+u.id+'"></div>';
     g.appendChild(card);
     const bd=card.querySelector('#ub-'+u.id);
-    const lst=u.id!==curU?canGive:Object.entries(c).filter(([,v])=>v>1);
-    if(!lst.length)bd.innerHTML='<span style="font-size:8px;color:var(--gray)">Ninguna</span>';
-    else{lst.slice(0,10).forEach(([sid])=>{const sp=document.createElement('span');sp.className='ub rp';sp.textContent=sid;bd.appendChild(sp);});if(lst.length>10){const m=document.createElement('span');m.className='ub';m.textContent='+'+(lst.length-10)+' más';bd.appendChild(m);}}
+    if(!canGive.length) bd.innerHTML='<span style="font-size:8px;color:var(--gray)">Ninguna</span>';
+    else{
+      canGive.slice(0,10).forEach(([sid])=>{const sp=document.createElement('span');sp.className='ub rp';sp.textContent=sid;bd.appendChild(sp);});
+      if(canGive.length>10){const m=document.createElement('span');m.className='ub';m.textContent='+'+(canGive.length-10)+' más';bd.appendChild(m);}
+    }
+  });
+
+  // ── Visitantes importados
+  visitantes.forEach(v=>{
+    const c=v.col||{};
+    let rep=0;
+    Object.values(c).forEach(val=>{if(val>1)rep++;});
+    const canGive=Object.entries(c).filter(([sid,val])=>val>1&&(myC[sid]||0)===0);
+    const card=document.createElement('div');card.className='fc';
+    card.innerHTML='<h4><div class="av" style="background:#9B59B6">'+v.name.replace(' 📂','').substring(0,2).toUpperCase()+'</div>'+v.name.replace(' 📂','')+' <span style="font-size:8px;background:#9B59B6;color:#fff;padding:1px 5px;border-radius:5px;margin-left:2px">📂</span></h4>'
+      +'<div class="fst">🔁 Rep.: <strong>'+rep+'</strong></div>'
+      +'<div style="margin-top:5px;font-size:8px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Me puede dar ('+canGive.length+'):</div>'
+      +'<div class="ubdg" id="ub-'+v.id+'"></div>';
+    g.appendChild(card);
+    const bd=card.querySelector('#ub-'+v.id);
+    if(!canGive.length) bd.innerHTML='<span style="font-size:8px;color:var(--gray)">Ninguna</span>';
+    else{
+      canGive.slice(0,10).forEach(([sid])=>{const sp=document.createElement('span');sp.className='ub rp';sp.textContent=sid;bd.appendChild(sp);});
+      if(canGive.length>10){const m=document.createElement('span');m.className='ub';m.textContent='+'+(canGive.length-10)+' más';bd.appendChild(m);}
+    }
   });
 }
 
@@ -973,6 +1085,39 @@ function parseFiguritas(txt,targetUid,asMe,visName){
   }
 }
 
+// ═══ NOMBRE / FIRST RUN ══════════════════════════════════
+function firstRunSave(){
+  const n=document.getElementById('frName').value.trim();
+  if(!n){document.getElementById('frName').focus();return;}
+  // Renombrar el usuario "yo" inicial
+  const u=users.find(x=>x.id==='yo');
+  if(u) u.name=n;
+  else users[0].name=n;
+  save();
+  localStorage.setItem('p26cu',users[0].id);
+  localStorage.setItem('p26fr','1'); // first-run done
+  document.getElementById('firstRun').style.display='none';
+  renderAll();
+}
+
+function openEditName(){
+  const me=users.find(u=>u.id===curU);
+  if(!me) return;
+  document.getElementById('editName').value=me.name;
+  document.getElementById('moEdit').classList.add('open');
+  setTimeout(()=>document.getElementById('editName').focus(),100);
+}
+
+function saveEditName(){
+  const n=document.getElementById('editName').value.trim();
+  if(!n) return;
+  const me=users.find(u=>u.id===curU);
+  if(me) me.name=n;
+  save();
+  cMo('moEdit');
+  renderAll();
+}
+
 // ═══ INIT ═══════════════════════════════════════════════
 function showWhoAreYou(){
   const list=document.getElementById('whoList');
@@ -992,24 +1137,28 @@ function showWhoAreYou(){
 // Restaurar usuario activo desde localStorage
 const savedU=localStorage.getItem('p26cu');
 if(savedU&&users.find(u=>u.id===savedU)) curU=savedU;
+else if(users.length>0) curU=users[0].id;
+
+// ── First-run: si nunca se ha puesto nombre, mostrar pantalla de bienvenida
+const firstRunDone=localStorage.getItem('p26fr');
+const defaultName=users[0]&&users[0].name==='Yo';
+if(!firstRunDone||defaultName){
+  document.getElementById('firstRun').style.display='flex';
+}
 
 renderAll();renderSyncUI();if(room)syncNow();
 
-// Si hay múltiples usuarios, preguntar quién eres al abrir
-if(users.length>1&&!savedU) showWhoAreYou();
-
-// Header: al hacer clic en el nombre de usuario activo en la barra azul, mostrar selector
-document.getElementById('ubtns').addEventListener('click',e=>{
-  if(e.target.classList.contains('ubtn')&&!e.target.classList.contains('active')){
-    // Ya manejado por el onclick individual de cada botón
-  }
-});
+// Si hay múltiples usuarios y no hay sesión guardada, preguntar quién eres
+if(users.length>1&&!savedU&&firstRunDone) showWhoAreYou();
 
 document.getElementById('nN').addEventListener('keydown',e=>{if(e.key==='Enter')addUser();});
+document.getElementById('frName').addEventListener('keydown',e=>{if(e.key==='Enter')firstRunSave();});
+document.getElementById('editName').addEventListener('keydown',e=>{if(e.key==='Enter')saveEditName();});
 document.getElementById('moU').addEventListener('click',e=>{if(e.target===document.getElementById('moU'))cMo('moU');});
 document.getElementById('moWho').addEventListener('click',e=>{if(e.target===document.getElementById('moWho'))cMo('moWho');});
+document.getElementById('moEdit').addEventListener('click',e=>{if(e.target===document.getElementById('moEdit'))cMo('moEdit');});
 
-// Botón "Ver:" en ubar: al hacer clic abre selector si hay múltiples usuarios
+// Botón "Ver:" en ubar abre selector si hay múltiples usuarios
 document.querySelector('.ubar span').style.cursor='pointer';
 document.querySelector('.ubar span').onclick=()=>{if(users.length>1)showWhoAreYou();};
 </script>
