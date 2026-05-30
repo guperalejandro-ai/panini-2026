@@ -130,22 +130,49 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
   </div>
 </div>
 <div>
-  <div class="srow">
-    <div class="sbox g"><div class="snum" id="sH">0</div><div class="slbl">Tengo</div></div>
-    <div class="sbox r"><div class="snum" id="sM">0</div><div class="slbl">Faltan</div></div>
-    <div class="sbox o"><div class="snum" id="sR">0</div><div class="slbl">Repetidas</div></div>
-    <div class="sbox p"><div class="snum" id="sS">0/34</div><div class="slbl">Especiales</div></div>
-  </div>
-  <div class="pw">
-    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-      <span style="font-weight:600;color:var(--bdk)">Progreso (equipo)</span><span id="pct" style="color:var(--gray)">0%</span>
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="margin-bottom:12px">
+    <!-- Progreso total álbum -->
+    <div style="background:#fff;border-radius:10px;box-shadow:0 1px 5px rgba(74,144,217,.08);padding:13px 14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:700;color:var(--bdk)">📊 Progreso del álbum</span>
+        <span id="pct" style="font-size:22px;font-weight:900;color:var(--blue)">0%</span>
+      </div>
+      <div class="pb" style="height:10px"><div class="pf" id="pf" style="width:0%"></div></div>
+      <div style="font-size:10px;color:var(--gray);margin-top:5px" id="pd">0/960 equipo · 0/20 FOIL · 0/14 Coca-Cola</div>
     </div>
-    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
-    <div style="font-size:9px;color:var(--gray)" id="pd">0/960 equipo · 0/20 FOIL · 0/14 Coca-Cola</div>
+    <!-- 4 stats 2x2 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="sbox g" style="padding:12px 8px">
+        <div class="snum" id="sH" style="font-size:32px">0</div>
+        <div class="slbl">✅ Tengo</div>
+      </div>
+      <div class="sbox r" style="padding:12px 8px">
+        <div class="snum" id="sM" style="font-size:32px">0</div>
+        <div class="slbl">❌ Faltan</div>
+      </div>
+      <div class="sbox o" style="padding:12px 8px">
+        <div class="snum" id="sR" style="font-size:32px">0</div>
+        <div class="slbl">🔁 Repetidas</div>
+      </div>
+      <div class="sbox p" style="padding:12px 8px">
+        <div class="snum" id="sS" style="font-size:32px">0/34</div>
+        <div class="slbl">⭐ Especiales</div>
+      </div>
+    </div>
+    <!-- Progreso selección activa -->
+    <div id="selProgress" style="background:#fff;border-radius:10px;box-shadow:0 1px 5px rgba(74,144,217,.08);padding:11px 14px;display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span id="selProgressLabel" style="font-size:11px;font-weight:700;color:var(--bdk)">Selección activa</span>
+        <span id="selProgressPct" style="font-size:18px;font-weight:900;color:var(--blue)">0%</span>
+      </div>
+      <div class="pb" style="height:8px"><div class="pf" id="selProgressBar" style="width:0%"></div></div>
+      <div id="selProgressDetail" style="font-size:9px;color:var(--gray);margin-top:4px"></div>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="sTab('stickers',this)">🃏 Estampas</button>
-    <button class="tab" onclick="sTab('family',this)">👨‍👩‍👧‍👦 Familia</button>
+    <button class="tab" onclick="sTab('family',this)">👥 Comunidad</button>
     <button class="tab" onclick="sTab('trades',this)">🔄 Intercambios</button>
     <button class="tab" onclick="sTab('sync',this)">🔗 Sync</button>
   </div>
@@ -176,79 +203,53 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
     <div class="fg" id="fgrid"></div>
   </div>
   <div class="sec" id="sec-trades">
-    <!-- Sub-tabs -->
-    <div style="display:flex;gap:5px;margin-bottom:12px">
-      <button class="tab active" id="trTab1" onclick="sTrTab('global',this)" style="font-size:11px;padding:6px 14px">🌍 Todo el álbum</button>
-      <button class="tab" id="trTab2" onclick="sTrTab('country',this)" style="font-size:11px;padding:6px 14px">🏳️ Por selección</button>
-    </div>
-
-    <!-- GLOBAL VIEW -->
-    <div id="tr-global">
-      <!-- QR global -->
-      <div class="card" style="margin-bottom:12px">
-        <div class="ch">
-          <h3>📱 QR Global — todas mis faltantes</h3>
-          <span class="chip" id="qrGlobalChip">0 faltantes</span>
-        </div>
-        <div class="cb">
-          <p style="font-size:11px;color:var(--gray);margin-bottom:11px">Este QR contiene <strong>todas</strong> tus estampas faltantes del álbum. Cuando alguien lo escanea desde esta app, ve automáticamente cuáles de sus repetidas te sirven a ti.</p>
-          <div id="qrGlobal"></div>
-        </div>
-      </div>
-      <!-- Global family matches -->
-      <div class="card" style="margin-bottom:12px">
-        <div class="ch"><h3>👨‍👩‍👧‍👦 ¿Quién me puede ayudar más?</h3></div>
-        <div class="cb" id="globalMatches"></div>
-      </div>
-      <!-- Missing by country summary -->
-      <div class="card">
-        <div class="ch"><h3>📋 Resumen de faltantes por país</h3></div>
-        <div class="cb" id="globalSummary" style="max-height:320px;overflow-y:auto"></div>
+    <!-- Selector de persona -->
+    <div class="card" style="margin-bottom:10px">
+      <div class="ch"><h3>🔄 Cotejo con</h3><span class="chip" id="trPersonChip">Elige una persona</span></div>
+      <div class="cb" style="padding:8px 12px">
+        <div id="trPersonBtns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       </div>
     </div>
-
-    <!-- BY COUNTRY VIEW -->
-    <div id="tr-country" style="display:none">
-      <div class="card" style="margin-bottom:12px">
-        <div class="ch"><h3>🔄 Intercambios</h3><span class="chip" id="trLbl">Selecciona un país</span></div>
-        <div class="cb" id="trBody"><div class="emsg">Selecciona una selección en la lista izquierda</div></div>
-      </div>
-      
-      </div>
-    </div>
+    <!-- Resultado del cotejo -->
+    <div id="trResult"><div class="emsg" style="padding:30px 0">👆 Elige a alguien para ver el cotejo</div></div>
   </div>
   <div class="sec" id="sec-sync">
 
     <!-- EXPORT / IMPORT card -->
     <div class="card" style="margin-bottom:12px">
-      <div class="ch"><h3>📤 Compartir por archivo</h3><span class="chip">Sin internet necesario</span></div>
+      <div class="ch"><h3>📤 Compartir mi colección</h3><span class="chip">Texto para WhatsApp</span></div>
       <div class="cb">
-        <p style="font-size:11px;color:var(--gray);margin-bottom:12px">Genera un archivo con tu colección y mándalo por WhatsApp. Quien lo reciba lo importa aquí y la app coteja automáticamente los intercambios posibles.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-          <button class="btnp" onclick="exportarColeccion('todo')">💾 Exportar todo</button>
-          <button class="btns" onclick="exportarColeccion('faltantes')">📋 Solo faltantes</button>
-          <button class="btns" onclick="exportarColeccion('repetidas')">🔁 Solo repetidas</button>
+        <p style="font-size:11px;color:var(--gray);margin-bottom:12px">Genera un texto con tu colección. Cópialo y mándalo por WhatsApp. Quien lo reciba lo pega aquí y la app coteja automáticamente.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btnp" onclick="exportarComoTexto('todo')">💾 Exportar todo</button>
+          <button class="btns" onclick="exportarComoTexto('faltantes')">📋 Solo faltantes</button>
+          <button class="btns" onclick="exportarComoTexto('repetidas')">🔁 Solo repetidas</button>
         </div>
-        <div style="border-top:1px solid var(--bf);padding-top:11px">
-          <div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:7px">📥 Importar archivo de alguien</div>
-          <p style="font-size:11px;color:var(--gray);margin-bottom:8px">Carga el archivo que te mandaron. Aparecerá como visitante en la vista de intercambios.</p>
-          <textarea id="importTxt" placeholder="Pega lista de Figuritas App (español o inglés)..." style="width:100%;height:65px;font-size:11px;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;margin-bottom:7px;outline:none"></textarea>
-          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:7px">
-            <button class="btnp" onclick="importarComoYo()">🔄 Cargar como MI colección</button>
-            <button class="btns" onclick="(()=>{const t=document.getElementById('importTxt').value.trim();if(!t){alert('Pega el texto primero');return;}const n=prompt('¿Nombre de esta persona?');if(n)importarDesdeFiguritas(t,n);document.getElementById('importTxt').value=''})()">👤 Importar como otro</button>
+        <!-- Área de texto generado -->
+        <div id="exportArea" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:10px;font-weight:700;color:var(--bdk)" id="exportLabel">Tu colección</span>
+            <button class="btnp" style="padding:4px 12px;font-size:11px" onclick="copiarExport()">📋 Copiar</button>
           </div>
-          <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer">
-            <span class="btns" style="cursor:pointer">📂 Elegir archivo .json</span>
-            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarColeccion(event)">
-          </label>
+          <textarea id="exportTxt" readonly style="width:100%;height:120px;font-size:10px;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;outline:none;background:var(--glt);font-family:monospace"></textarea>
+          <div id="exportCopied" style="font-size:10px;color:var(--grn);margin-top:4px;display:none">✅ ¡Copiado al portapapeles!</div>
+        </div>
+        <div style="border-top:1px solid var(--bf);padding-top:11px;margin-top:10px">
+          <div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:5px">📥 Importar colección</div>
+          <p style="font-size:11px;color:var(--gray);margin-bottom:8px">Pega el texto que te mandaron.</p>
+          <textarea id="importTxt" placeholder="Pega aquí el texto de colección..." style="width:100%;height:80px;font-size:11px;border:1px solid #DCE8F5;border-radius:7px;padding:8px;resize:none;margin-bottom:8px;outline:none"></textarea>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:7px">
+            <button class="btnp" onclick="importarComoYo()">🔄 Importar desde app externa</button>
+            <button class="btns" onclick="(()=>{const t=document.getElementById('importTxt').value.trim();if(!t){alert('Pega el texto primero');return;}const n=prompt('¿Nombre de esta persona?');if(n)importarDesdeGuperion(t,n);document.getElementById('importTxt').value=''})()">👤 Importar colección Guperion</button>
+          </div>
           <div id="importResult" style="margin-top:8px;font-size:11px;color:var(--grn)"></div>
         </div>
       </div>
     </div>
 
-    <div class="ibox"><strong>🔗 Sincronización familiar en red</strong>Todos comparten un <b>código de sala</b>. Abren esta página, ingresan el código y se sincronizan automáticamente cada 30 seg. Tu avance nunca se pierde — vive en tu navegador y en la nube.</div>
+    <div class="ibox"><strong>🔗 Sala Guperion — Sync en red</strong>Todos comparten un <b>código de sala</b>. Cualquiera abre esta página, ingresa el código y los datos se sincronizan automáticamente cada 30 seg. Tu colección vive en tu navegador y en la nube.</div>
     <div class="card">
-      <div class="ch"><h3>Sala familiar</h3></div>
+      <div class="ch"><h3>🔗 Sala Guperion</h3><span class="chip">Sync en tiempo real</span></div>
       <div class="cb">
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px">
           <button class="btnp" onclick="createRoom()">🆕 Nueva sala</button>
@@ -279,6 +280,17 @@ main{max-width:1320px;margin:0 auto;padding:14px 13px;display:grid;grid-template
     <h3>➕ Agregar persona</h3>
     <input class="mi" type="text" id="nN" placeholder="Nombre (ej. Hermano, Sobrino Nico)" maxlength="20">
     <div class="mbtns"><button class="btns" onclick="cMo('moU')">Cancelar</button><button class="btnp" onclick="addUser()">Agregar</button></div>
+  </div>
+</div>
+<!-- Modal: ¿Quién eres? -->
+<div class="mo" id="moWho">
+  <div class="md" style="max-width:320px">
+    <h3 style="font-size:15px;margin-bottom:4px">👋 ¿Quién eres?</h3>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:14px">Elige tu nombre para registrar tu colección.</p>
+    <div id="whoList" style="display:flex;flex-direction:column;gap:7px"></div>
+    <div style="border-top:1px solid var(--bf);margin-top:12px;padding-top:10px">
+      <button class="btns" style="width:100%;font-size:11px" onclick="cMo('moWho');openAddUser()">+ Soy alguien nuevo</button>
+    </div>
   </div>
 </div>
 <script>
@@ -461,20 +473,37 @@ function renderStats(){
   document.getElementById('pf').style.width=pct+'%';
   document.getElementById('pct').textContent=pct+'%';
   document.getElementById('pd').textContent=hT+'/'+TOTAL_TEAM+' equipo · '+hFoil+'/'+TOTAL_FOIL+' FOIL · '+hCoca+'/'+TOTAL_COCA+' Coca-Cola';
+  // Progreso selección activa
+  const sp=document.getElementById('selProgress');
+  if(selId){
+    const item=selId==='FWC'?SPECIAL:TEAMS.find(t=>t.id===selId);
+    if(item){
+      const stList=stks(item);
+      const shv=stList.filter(({sid})=>(c[sid]||0)>=1).length;
+      const srep=stList.filter(({sid})=>(c[sid]||0)>1).length;
+      const sTotal=stList.length;
+      const sPct=Math.round(shv/sTotal*100);
+      sp.style.display='block';
+      document.getElementById('selProgressLabel').textContent=item.flag+' '+item.name;
+      document.getElementById('selProgressPct').textContent=sPct+'%';
+      document.getElementById('selProgressBar').style.width=sPct+'%';
+      document.getElementById('selProgressDetail').textContent=shv+'/'+sTotal+' estampas'+(srep>0?' · '+srep+' repetidas':'')+(shv===sTotal?' · ✅ ¡Completo!':'');
+    }
+  } else { sp.style.display='none'; }
 }
 
 function renderGF(){
   const d=document.getElementById('gf');d.innerHTML='';
-  ['TODOS','A','B','C','D','E','F','G','H','I','J','K','L','ESP'].forEach(g=>{
+  ['A','B','C','D','E','F','G','H','I','J','K','L','ESP'].forEach(g=>{
     const b=document.createElement('button');b.className='gbtn'+(curG===g?' active':'');
-    b.textContent=g==='TODOS'?'Todos':g==='ESP'?'⭐':'G.'+g;
+    b.textContent=g==='ESP'?'⭐ Esp':'G.'+g;
     b.onclick=()=>{curG=g;renderCL();};d.appendChild(b);
   });
 }
 
 function renderCL(){
   const list=document.getElementById('cl');list.innerHTML='';const c=col(curU);
-  if(curG==='TODOS'||curG==='ESP'){
+  if(curG==='ESP'){
     const hv=SPECIAL.stickers.filter(s=>(c['FWC-'+s.c]||0)>=1).length;
     const tot=SPECIAL.stickers.length;
     const row=document.createElement('div');row.className='crow'+(selId==='FWC'?' sel':'');
@@ -482,7 +511,7 @@ function renderCL(){
     row.onclick=()=>{selId='FWC';renderAll();};list.appendChild(row);
   }
   if(curG!=='ESP'){
-    const filtered=curG==='TODOS'?TEAMS:TEAMS.filter(t=>t.group===curG);
+    const filtered=TEAMS.filter(t=>t.group===curG);
     filtered.forEach(t=>{
       const hv=t.s.filter((_,i)=>(c[t.id+'-'+i]||0)>=1).length;
       const rep=t.s.filter((_,i)=>(c[t.id+'-'+i]||0)>1).length;
@@ -525,7 +554,7 @@ function sTab(tab,btn){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
   document.getElementById('sec-'+tab).classList.add('active');
   if(tab==='family')renderFamily();
-  if(tab==='trades'){document.getElementById('tr-global').style.display=curTrTab==='global'?'block':'none';document.getElementById('tr-country').style.display=curTrTab==='country'?'block':'none';document.getElementById('trTab1').classList.toggle('active',curTrTab==='global');document.getElementById('trTab2').classList.toggle('active',curTrTab==='country');renderTrades();}
+  if(tab==='trades'){renderTrades();}
   if(tab==='sync')renderSyncUI();
 }
 
@@ -561,166 +590,100 @@ function renderFamily(){
   });
 }
 
-// ═══ TRADES + QR ═══════════════════════════════════════════
-let curTrTab='global';
-
-function sTrTab(tab,btn){
-  curTrTab=tab;
-  document.querySelectorAll('#trTab1,#trTab2').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tr-global').style.display=tab==='global'?'block':'none';
-  document.getElementById('tr-country').style.display=tab==='country'?'block':'none';
-  if(tab==='global')renderGlobalTrades();
-  else renderCountryTrades();
-}
+// ═══ TRADES ═══════════════════════════════════════════════
+let curTrPerson=null;
 
 function renderTrades(){
-  // Render whichever sub-tab is active
-  if(curTrTab==='global') renderGlobalTrades();
-  else renderCountryTrades();
+  renderTradePersonBtns();
+  renderTradeResult();
 }
 
-// ── GLOBAL view ─────────────────────────────────────────
-function getAllMissing(){
-  const myC=col(curU), missing=[];
-  TEAMS.forEach(t=>{
-    t.s.forEach((_,i)=>{
-      if((myC[t.id+'-'+i]||0)===0) missing.push({sid:t.id+'-'+i,tid:t.id,idx:i,name:t.s[i],team:t});
-    });
+function renderTradePersonBtns(){
+  const cont=document.getElementById('trPersonBtns');
+  if(!cont) return;
+  cont.innerHTML='';
+  const others=allPeople().filter(u=>u.id!==curU);
+  if(!others.length){cont.innerHTML='<span style="font-size:11px;color:var(--gray)">Agrega personas en Comunidad para ver cotejos</span>';return;}
+  others.forEach(u=>{
+    const b=document.createElement('button');
+    b.className='ubtn'+(curTrPerson===u.id?' active':'');
+    b.style.background=curTrPerson===u.id?u.color:'rgba(255,255,255,.15)';
+    b.style.borderColor=u.color||'rgba(255,255,255,.3)';
+    b.textContent=u.name.replace(' 📂','');
+    b.style.cssText='padding:6px 14px;border-radius:16px;border:1px solid '+(u.color||'#4A90D9')+';background:'+(curTrPerson===u.id?u.color:'#fff')+';color:'+(curTrPerson===u.id?'#fff':u.color||'#4A90D9')+';font-size:11px;font-weight:600;cursor:pointer';
+    b.onclick=()=>{curTrPerson=u.id;renderTradePersonBtns();renderTradeResult();};
+    cont.appendChild(b);
   });
-  return missing;
 }
 
-function renderGlobalTrades(){
-  const allMissing=getAllMissing();
+function renderTradeResult(){
+  const area=document.getElementById('trResult');
+  if(!curTrPerson){area.innerHTML='<div class="emsg" style="padding:30px 0">👆 Elige a alguien para ver el cotejo</div>';return;}
+  const other=allPeople().find(u=>u.id===curTrPerson);
+  if(!other){area.innerHTML='<div class="emsg">Persona no encontrada</div>';return;}
   const myC=col(curU);
-  const me=users.find(u=>u.id===curU);
-
-  // ── QR global
-  document.getElementById('qrGlobalChip').textContent=allMissing.length+' faltantes';
-  const qrArea=document.getElementById('qrGlobal');
-  if(!allMissing.length){
-    qrArea.innerHTML='<div class="emsg">🏆 ¡Álbum completo!</div>';
+  const thC=getColForId(other.id);
+  // Estampas que el otro tiene repetidas y a mí me faltan
+  const theyCanGive=[];
+  // Estampas que yo tengo repetidas y al otro le faltan
+  const iCanGive=[];
+  TEAMS.forEach(t=>{
+    t.s.forEach((_,idx)=>{
+      const sid=t.id+'-'+idx;
+      const myVal=myC[sid]||0;
+      const thVal=thC[sid]||0;
+      if(myVal===0&&thVal>1) theyCanGive.push({sid,t,idx,name:t.s[idx]});
+      if(myVal>1&&(thVal===0||thVal===-1)) iCanGive.push({sid,t,idx,name:t.s[idx]});
+    });
+  });
+  // Group by team
+  const groupByTeam=(arr)=>{
+    const m={};
+    arr.forEach(({t,idx,name})=>{if(!m[t.id])m[t.id]={t,items:[]};m[t.id].items.push({num:idx+1,name});});
+    return Object.values(m);
+  };
+  const theyGroups=groupByTeam(theyCanGive);
+  const iGroups=groupByTeam(iCanGive);
+  let html='<div style="display:flex;flex-direction:column;gap:10px">';
+  // ── Bloque: él/ella me puede dar
+  html+='<div class="card"><div class="ch" style="background:linear-gradient(135deg,#E8FFF5,#fff)">'
+    +'<h3 style="color:#1A7A5A">📥 '+other.name.replace(' 📂','')+' me puede dar</h3>'
+    +'<span class="chip" style="background:#E8FFF5;color:#1A7A5A">'+theyCanGive.length+' estampas</span>'
+    +'</div><div class="cb">';
+  if(!theyCanGive.length){
+    html+='<div class="emsg">No tiene repetidas que te sirvan 😕</div>';
   } else {
-    // Compact payload: {u: name, m: {teamId: [idx,...], ...}}
-    const compact={u:(me&&me.name?me.name:'?')||'?',m:{}};
-    allMissing.forEach(({tid,idx})=>{if(!compact.m[tid])compact.m[tid]=[];compact.m[tid].push(idx+1);});
-    const payload=JSON.stringify(compact);
-    qrArea.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
-      +'<div><div id="qrGlobalDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
-      +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR con TODAS tus faltantes · Escanea para cotejar repetidas</div></div>'
-      +'<div style="flex:1;min-width:180px">'
-      +'<div style="font-size:11px;font-weight:600;color:var(--bdk);margin-bottom:8px">'+allMissing.length+' estampas pendientes en '+Object.keys(compact.m).length+' países</div>'
-      +'<div style="font-size:10px;color:var(--gray)">Países incompletos:</div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">'
-      +TEAMS.filter(t=>compact.m[t.id]).map(t=>'<span class="mb">'+t.flag+' '+t.name+' ('+compact.m[t.id].length+')</span>').join('')
-      +'</div></div></div>';
-  }
-
-  // ── Who helps me most
-  const gm=document.getElementById('globalMatches');
-  if(users.length<=1){gm.innerHTML='<div class="emsg">Agrega más personas para ver coincidencias</div>';} 
-  else {
-    const rows=allPeople().filter(u=>u.id!==curU).map(u=>{
-      const thC=getColForId(u.id);
-      const canGive=allMissing.filter(({sid})=>(thC[sid]||0)>1);
-      // What they need from me
-      const allTheirMissing=[];
-      TEAMS.forEach(t=>t.s.forEach((_,i)=>{const v=thC[t.id+'-'+i]||0;if(v===0||v===-1)allTheirMissing.push(t.id+'-'+i);}));
-      const iGive=allTheirMissing.filter(sid=>(myC[sid]||0)>1);
-      return {u,canGive,iGive};
-    }).sort((a,b)=>b.canGive.length-a.canGive.length);
-
-    let html='<div class="tgrid">';
-    rows.forEach(({u,canGive,iGive})=>{
-      // Group canGive by team for display
-      const byTeam={};
-      canGive.forEach(({tid,idx,team})=>{if(!byTeam[tid])byTeam[tid]={team,nums:[]};byTeam[tid].nums.push(idx+1);});
-      html+='<div class="tcard"><h4><div class="av" style="background:'+(u.color||'#4A90D9')+';width:20px;height:20px;font-size:9px">'+u.name.substring(0,2).toUpperCase()+'</div>'+u.name
-        +'<span style="margin-left:auto;font-size:9px;background:var(--grn);color:#fff;padding:2px 7px;border-radius:8px;font-weight:700">'+canGive.length+' te puede dar</span></h4>';
-      if(!canGive.length){
-        html+='<div style="font-size:9px;color:var(--gray)">No tiene repetidas que te sirvan</div>';
-      } else {
-        html+='<div style="font-size:9px;color:var(--gray);margin-bottom:4px">📥 Sus repetidas que me faltan a mí:</div><div class="mbdg">';
-        Object.values(byTeam).forEach(({team,nums})=>{
-          html+='<span class="mb key">'+team.flag+' '+team.name+': #'+nums.join(', #')+'</span>';
-        });
-        html+='</div>';
-      }
-      html+='<div style="font-size:9px;color:var(--gray);margin:6px 0 3px">📤 Mis repetidas que le faltan a él/ella: <strong style="color:var(--text)">'+iGive.length+'</strong></div>';
-      html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:7px">';
+    theyGroups.forEach(({t,items})=>{
+      html+='<div><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:3px">'+t.flag+' '+t.name+'</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:3px">';
+      items.forEach(({num,name})=>html+='<span class="mb key" title="'+name+'">#'+num+'</span>');
+      html+='</div></div>';
     });
     html+='</div>';
-    gm.innerHTML=html;
   }
-
-  // ── Summary by country
-  const gs=document.getElementById('globalSummary');
-  const incomplete=TEAMS.filter(t=>t.s.some((_,i)=>(myC[t.id+'-'+i]||0)===0));
-  if(!incomplete.length){gs.innerHTML='<div class="emsg">🏆 ¡Todos los países completos!</div>';return;}
-  let sh='<div style="display:flex;flex-direction:column;gap:5px">';
-  incomplete.forEach(t=>{
-    const missing=t.s.map((_,i)=>({sid:t.id+'-'+i,num:i+1,name:t.s[i]})).filter(({sid})=>(myC[sid]||0)===0);
-    sh+='<div style="background:var(--glt);border-radius:6px;padding:7px 10px;border:1px solid #DCE8F5">'
-      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
-      +'<span style="font-size:13px">'+t.flag+'</span>'
-      +'<span style="font-size:11px;font-weight:600">'+t.name+'</span>'
-      +'<span style="font-size:9px;background:var(--red);color:#fff;padding:1px 6px;border-radius:8px;margin-left:auto">'+missing.length+' faltan</span></div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:2px">'
-      +missing.map(({num,name})=>'<span class="mb" title="'+name+'">#'+num+'</span>').join('')
-      +'</div></div>';
-  });
-  sh+='</div>';
-  gs.innerHTML=sh;
-}
-
-// ── BY COUNTRY view ──────────────────────────────────────
-function renderCountryTrades(){
-  const body=document.getElementById('trBody');
-  document.getElementById('qrLbl').textContent=selId&&selId!=='FWC'?(TEAMS.find(t=>t.id===selId)||{name:'?'}).name:'—';
-  document.getElementById('trLbl').textContent=selId&&selId!=='FWC'?(TEAMS.find(t=>t.id===selId)||{flag:'',name:'?'}).flag+' '+(TEAMS.find(t=>t.id===selId)||{name:'?'}).name:'Selecciona un país';
-  if(!selId||selId==='FWC'){body.innerHTML='<div class="emsg">Selecciona una selección en la lista izquierda</div>';renderQR([]);return;}
-  const t=TEAMS.find(x=>x.id===selId),myC=col(curU);
-  const myMissing=t.s.map((_,i)=>t.id+'-'+i).filter(sid=>(myC[sid]||0)===0);
-  const myRep=t.s.map((_,i)=>t.id+'-'+i).filter(sid=>(myC[sid]||0)>1);
-  if(!myMissing.length){body.innerHTML='<div class="emsg">✅ ¡Completo '+t.flag+' '+t.name+'!</div>';renderQR([]);return;}
-  let html='<p style="font-size:11px;color:var(--gray);margin-bottom:10px">Te faltan <strong style="color:var(--text)">'+myMissing.length+'</strong> de '+t.flag+' '+t.name+':</p><div class="tgrid">';
-  allPeople().forEach(u=>{
-    const thC=getColForId(u.id);
-    const theyGive=myMissing.filter(sid=>(thC[sid]||0)>1||(u.isVisitor&&u.modo==='repetidas'&&(thC[sid]||0)>1));
-    const iGive=u.id!==curU?t.s.map((_,i)=>t.id+'-'+i).filter(sid=>{const v=thC[sid]||0;return (v===0||v===-1)&&(myC[sid]||0)>1}):[];
-    const isMe=u.id===curU;
-    const visBadge=u.isVisitor?'<span style="font-size:8px;background:#9B59B6;color:#fff;padding:1px 4px;border-radius:4px">📂</span>':'';
-    html+='<div class="tcard"><h4><div class="av" style="background:'+(u.color||'#4A90D9')+';width:20px;height:20px;font-size:9px">'+u.name.replace(' 📂','').substring(0,2).toUpperCase()+'</div>'+u.name.replace(' 📂','')+(isMe?' (Tú)':'')+visBadge+'</h4>';
-    if(!isMe){
-      html+='<div style="font-size:9px;color:var(--gray);margin-bottom:3px">📥 Puede darte:</div>';
-      if(!theyGive.length)html+='<div style="font-size:9px;color:var(--gray)">Ninguna 😕</div>';
-      else{html+='<div class="mbdg">';theyGive.forEach(sid=>{const i=parseInt(sid.split('-')[1]);html+='<span class="mb key">#'+(i+1)+' '+t.s[i]+'</span>';});html+='</div>';}
-      html+='<div style="font-size:9px;color:var(--gray);margin:5px 0 3px">📤 Le puedo dar:</div>';
-      if(!iGive.length)html+='<div style="font-size:9px;color:var(--gray)">Ninguna</div>';
-      else{html+='<div class="mbdg">';iGive.forEach(sid=>{const i=parseInt(sid.split('-')[1]);html+='<span class="mb">#'+(i+1)+' '+t.s[i]+'</span>';});html+='</div>';}
-    }else{
-      html+='<div style="font-size:9px;color:var(--gray);margin-bottom:3px">🔁 Mis repetidas:</div>';
-      if(!myRep.length)html+='<div style="font-size:9px;color:var(--gray)">Sin repetidas</div>';
-      else{html+='<div class="mbdg">';myRep.forEach(sid=>{const i=parseInt(sid.split('-')[1]);html+='<span class="mb rp">#'+(i+1)+'</span>';});html+='</div>';}
-    }
+  html+='</div></div>';
+  // ── Bloque: yo le puedo dar
+  html+='<div class="card"><div class="ch" style="background:linear-gradient(135deg,#EAF3FC,#fff)">'
+    +'<h3 style="color:var(--bdk)">📤 Yo le puedo dar a '+other.name.replace(' 📂','')+'</h3>'
+    +'<span class="chip">'+iCanGive.length+' estampas</span>'
+    +'</div><div class="cb">';
+  if(!iCanGive.length){
+    html+='<div class="emsg">No tienes repetidas que le sirvan</div>';
+  } else {
+    html+='<div style="display:flex;flex-direction:column;gap:7px">';
+    iGroups.forEach(({t,items})=>{
+      html+='<div><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:3px">'+t.flag+' '+t.name+'</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:3px">';
+      items.forEach(({num,name})=>html+='<span class="mb" title="'+name+'">#'+num+'</span>');
+      html+='</div></div>';
+    });
     html+='</div>';
-  });
-  html+='</div>';body.innerHTML=html;renderQR(myMissing,t);
-}
-
-function renderQR(missing,team){
-  const area=document.getElementById('qrArea');
-  if(!missing||!missing.length){area.innerHTML='<div class="emsg">Sin estampas faltantes en este país</div>';return;}
-  const me=users.find(u=>u.id===curU);
-  const nums=missing.map(sid=>parseInt(sid.split('-')[1])+1);
-  const payload=JSON.stringify({u:(me&&me.name?me.name:'?')||'?',t:(team?team.id:null),mis:nums});
-  area.innerHTML='<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">'
-    +'<div><div id="qrDiv" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #DCE8F5;display:inline-block"></div>'
-    +'<div style="font-size:10px;color:var(--gray);margin-top:6px;max-width:180px;text-align:center">QR de '+(team?team.name:'?')+' · Escanea para cotejar</div></div>'
-    +'<div style="flex:1;min-width:150px"><div style="font-size:10px;font-weight:700;color:var(--bdk);margin-bottom:5px">Me faltan '+nums.length+' de '+(team?team.name:'?')+':</div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:3px">'+nums.map(n=>'<span class="mb">#'+n+' '+team.s[n-1]+'</span>').join('')+'</div></div></div>';
-  
+  }
+  html+='</div></div>';
+  html+='</div>';
+  area.innerHTML=html;
+  document.getElementById('trPersonChip').textContent=other.name.replace(' 📂','');
 }
 
 // ═══ USERS ═══════════════════════════════════════════════
@@ -751,58 +714,99 @@ async function syncNow(){
   }catch(e){console.error(e);setSS('','Error sync');}
 }
 // ═══ EXPORT / IMPORT ═══════════════════════════════════════
-function exportarColeccion(modo){
+function exportarComoTexto(modo){
   const c=col(curU);
   const me=users.find(u=>u.id===curU);
-
-  // Build structured export
-  const data={
-    version:1,
-    app:'Panini FIFA 2026 · Guperion Systems',
-    usuario:(me&&me.name?me.name:'?')||'?',
-    fecha:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}),
-    modo,
-    coleccion:{}
-  };
-
+  const nombre=(me&&me.name?me.name:'?')||'?';
+  const fecha=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const modoLabel=modo==='todo'?'Colección completa':modo==='faltantes'?'Faltantes':'Repetidas';
+  let lines=[];
+  lines.push('=== Álbum Panini FIFA 2026 · Guperion Systems ===');
+  lines.push('Usuario: '+nombre);
+  lines.push('Fecha: '+fecha);
+  lines.push('Modo: '+modoLabel);
+  lines.push('---');
   TEAMS.forEach(t=>{
-    const entry={};
+    const nums=[];
     t.s.forEach((_,i)=>{
-      const sid=t.id+'-'+i;
-      const v=c[sid]||0;
-      if(modo==='todo'&&v>0) entry[i+1]=v;
-      else if(modo==='faltantes'&&v===0) entry[i+1]=0;
-      else if(modo==='repetidas'&&v>1) entry[i+1]=v;
+      const v=c[t.id+'-'+i]||0;
+      if(modo==='todo'&&v>0) nums.push(i+1+(v>1?'(x'+v+')':''));
+      else if(modo==='faltantes'&&v===0) nums.push(i+1);
+      else if(modo==='repetidas'&&v>1) nums.push(i+1+'(x'+v+')');
     });
-    if(Object.keys(entry).length>0){
-      data.coleccion[t.id]={
-        nombre:t.name,
-        flag:t.flag,
-        grupo:t.group,
-        estampas:entry
-      };
-    }
+    if(nums.length) lines.push(t.id+' '+t.flag+' '+t.name+': '+nums.join(', '));
   });
-  // Include specials
-  const specEntry={};
+  // Especiales
+  const specNums=[];
   SPECIAL.stickers.forEach(s=>{
-    const sid='FWC-'+s.c;
-    const v=c[sid]||0;
-    if(modo==='todo'&&v>0) specEntry[s.c]=v;
-    else if(modo==='faltantes'&&v===0) specEntry[s.c]=0;
-    else if(modo==='repetidas'&&v>1) specEntry[s.c]=v;
+    const v=c['FWC-'+s.c]||0;
+    if(modo==='todo'&&v>0) specNums.push(s.c+(v>1?'(x'+v+')':''));
+    else if(modo==='faltantes'&&v===0) specNums.push(s.c);
+    else if(modo==='repetidas'&&v>1) specNums.push(s.c+'(x'+v+')');
   });
-  if(Object.keys(specEntry).length>0) data.coleccion['FWC']={nombre:'Especiales/FOIL/Coca-Cola',estampas:specEntry};
+  if(specNums.length) lines.push('FWC ⭐ Especiales: '+specNums.join(', '));
+  lines.push('---FIN---');
+  const txt=lines.join('\n');
+  const area=document.getElementById('exportArea');
+  area.style.display='block';
+  document.getElementById('exportTxt').value=txt;
+  document.getElementById('exportLabel').textContent=modoLabel+' de '+nombre;
+  document.getElementById('exportCopied').style.display='none';
+}
 
-  const json=JSON.stringify(data,null,2);
-  const blob=new Blob([json],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  const modoLabel=modo==='todo'?'coleccion':modo==='faltantes'?'faltantes':'repetidas';
-  a.href=url;
-  a.download='panini2026_'+((me&&me.name?me.name:'?')||'yo').replace(/\s+/g,'_')+'_'+modoLabel+'_'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
-  URL.revokeObjectURL(url);
+function copiarExport(){
+  const txt=document.getElementById('exportTxt').value;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>{
+      document.getElementById('exportCopied').style.display='block';
+      setTimeout(()=>document.getElementById('exportCopied').style.display='none',2500);
+    });
+  } else {
+    document.getElementById('exportTxt').select();
+    document.execCommand('copy');
+    document.getElementById('exportCopied').style.display='block';
+    setTimeout(()=>document.getElementById('exportCopied').style.display='none',2500);
+  }
+}
+
+// Importar formato Guperion (texto plano generado por esta app)
+function importarDesdeGuperion(txt,name){
+  try{
+    const vcol={};
+    let usuario=name;
+    txt.split('\n').forEach(line=>{
+      line=line.trim();
+      if(line.startsWith('Usuario:')) usuario=line.replace('Usuario:','').trim()||name;
+      if(!line||line.startsWith('===')||line.startsWith('---')||line.startsWith('Modo:')||line.startsWith('Fecha:')) return;
+      const ci=line.indexOf(':'); if(ci<0) return;
+      const pre=line.substring(0,ci).trim().split(' ')[0].toUpperCase();
+      const partes=line.substring(ci+1).split(',');
+      if(pre==='FWC'){
+        partes.forEach(p=>{
+          p=p.trim(); if(!p) return;
+          const m=p.match(/^([A-Z0-9]+)(\(x(\d+)\))?$/i);
+          if(m) vcol['FWC-'+m[1]]=m[3]?parseInt(m[3]):1;
+        });
+      } else {
+        const team=TEAMS.find(t=>t.id===pre);
+        if(!team) return;
+        partes.forEach(p=>{
+          p=p.trim(); if(!p) return;
+          const m=p.match(/^(\d+)(\(x(\d+)\))?$/);
+          if(m){const idx=parseInt(m[1])-1;vcol[pre+'-'+idx]=m[3]?parseInt(m[3]):1;}
+        });
+      }
+    });
+    const id='vis_gup_'+usuario.replace(/ +/g,'_');
+    const vis={id,name:usuario,color:'#2EC49A',fecha:new Date().toLocaleDateString('es-MX'),modo:'todo',col:vcol};
+    const ei=visitantes.findIndex(v=>v.id===id);
+    if(ei>=0) visitantes[ei]=vis; else visitantes.push(vis);
+    localStorage.setItem('p26vis',JSON.stringify(visitantes));
+    document.getElementById('importResult').innerHTML='✅ <strong>'+usuario+'</strong> importado ('+Object.keys(vcol).length+' estampas). Ve a Intercambios.';
+    document.getElementById('importTxt').value='';
+  }catch(e){
+    document.getElementById('importResult').innerHTML='<span style="color:red">❌ '+e.message+'</span>';
+  }
 }
 
 // Visitors: imported collections shown in trades view
@@ -970,9 +974,44 @@ function parseFiguritas(txt,targetUid,asMe,visName){
 }
 
 // ═══ INIT ═══════════════════════════════════════════════
+function showWhoAreYou(){
+  const list=document.getElementById('whoList');
+  list.innerHTML='';
+  users.forEach(u=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='width:100%;padding:11px 14px;border-radius:8px;border:2px solid '+(u.color||'var(--blue)')+';background:#fff;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:.15s';
+    btn.innerHTML='<div class="av" style="background:'+(u.color||'var(--blue)')+';flex-shrink:0">'+u.name.substring(0,2).toUpperCase()+'</div>'+u.name;
+    btn.onmouseenter=()=>btn.style.background=u.color+'22';
+    btn.onmouseleave=()=>btn.style.background='#fff';
+    btn.onclick=()=>{curU=u.id;localStorage.setItem('p26cu',u.id);cMo('moWho');renderAll();};
+    list.appendChild(btn);
+  });
+  document.getElementById('moWho').classList.add('open');
+}
+
+// Restaurar usuario activo desde localStorage
+const savedU=localStorage.getItem('p26cu');
+if(savedU&&users.find(u=>u.id===savedU)) curU=savedU;
+
 renderAll();renderSyncUI();if(room)syncNow();
+
+// Si hay múltiples usuarios, preguntar quién eres al abrir
+if(users.length>1&&!savedU) showWhoAreYou();
+
+// Header: al hacer clic en el nombre de usuario activo en la barra azul, mostrar selector
+document.getElementById('ubtns').addEventListener('click',e=>{
+  if(e.target.classList.contains('ubtn')&&!e.target.classList.contains('active')){
+    // Ya manejado por el onclick individual de cada botón
+  }
+});
+
 document.getElementById('nN').addEventListener('keydown',e=>{if(e.key==='Enter')addUser();});
 document.getElementById('moU').addEventListener('click',e=>{if(e.target===document.getElementById('moU'))cMo('moU');});
+document.getElementById('moWho').addEventListener('click',e=>{if(e.target===document.getElementById('moWho'))cMo('moWho');});
+
+// Botón "Ver:" en ubar: al hacer clic abre selector si hay múltiples usuarios
+document.querySelector('.ubar span').style.cursor='pointer';
+document.querySelector('.ubar span').onclick=()=>{if(users.length>1)showWhoAreYou();};
 </script>
 </body>
 </html> 
